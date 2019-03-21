@@ -53,6 +53,8 @@ char **argv;
     exit(-1);
   }
 
+ //cat /etc/hosts - 127.00.1 localhost	
+	
   if((hp = gethostbyname(argv[1])) == NULL)
   {
     //fprintf(stderr, "Error: %s unknown host.\n", argv[1]);
