@@ -2,14 +2,22 @@
 
 // This code watches input from a GPS, using a wrapper of libgps
 // targeted for C++. When the latitude first is recorded, or 
-// moves more than 9 meters the lat/long data will be saved 
+// moves more than 3 meters the lat/long data will be saved 
 // with a time stamp. 
 
-// g++ -Wall $(pkg-config --cflags --libs libgps) localization.cpp -o localize
+// what modules are being interfaced
+
+// assumes gpsd is running
+
+// process ok? how to start?
+
+// g++ -Wall -pedantic $(pkg-config --cflags --libs libgps) localization.cpp -o localize
 //   We are allowing C++14 because that is the R-Pi's standard
-//   Need to put into a make file
 
 // functions other than main will be converted to .h files 
+
+#include <stdio.h>
+FILE *logfile_ptr;
 
 #include <iostream> 
 #include <string> //for time
@@ -81,34 +89,66 @@ void GPS() // this function will be added to .h file when it is created.
       std::cerr << "GPSD read error.\n";
       //add error handler, possibly an assert
     } 
+    struct gps_data_t gpsd_data;  //style guide says put outside of forloop, cannot test currently
+  struct gps_data_t *dataPtr = &gpsd_data;
+  
+  for (;;)  // change back while forever
+  {
+    if (!gps_rec.waiting(1000000)) continue;  //find what 1000000 is and make not magic number
+    
+
+    
+
+    if ((dataPtr = gps_rec.read()) == NULL) 
+    {
+      std::cerr << "GPSD read error.\n";
+    } 
     else 
     {
-      while (((gpsd_data = gps_rec.read()) == NULL) ||
-             (gpsd_data->fix.mode < MODE_2D)) 
+      while (((dataPtr= gps_rec.read()) == NULL) ||
+             (dataPtr->fix.mode < MODE_2D)) 
       {
+		// uncomment break to continue with fake GSP data
+		// break;
         // Do nothing until fix
       }
-      timestamp_t ts { gpsd_data->fix.time };
-      auto latitude2  { gpsd_data->fix.latitude }; //data type of DBUS_TYPE_DOUBLE
-      auto longitude2 { gpsd_data->fix.longitude }; //data type of DBUS_TYPE_DOUBLE
+      
+      // log the gps binary data
+      fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr);
+       
+      timestamp_t ts { dataPtr->fix.time };
+      auto latitude2  { dataPtr->fix.latitude };
+      auto longitude2 { dataPtr->fix.longitude };
       cout<<longitude2<<endl;
       
       // convert GPSD's timestamp_t into time_t
       time_t seconds { (time_t)ts };
-      auto   tm = *std::localtime(&seconds); //find exact datatype
+      auto   tm = *std::localtime(&seconds);
 
       std::ostringstream oss;
       oss << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
       auto time_str { oss.str() };
-      instance1.saveGPSData((double)latitude2, (double)longitude2, time_str); 
+      instance1.saveGPSData((double)latitude2, (double)longitude2, time_str);
 
       
     }
   }
 }
 
+
+
+
 int main(void)
 {
+  // error check this - TBD
+  logfile_ptr = fopen("/tmp/gpslog.bin", "w");
+  
   GPS();
-  cout<<"I made it this far"<<endl; // change to syslog
+  cout<<"I made it this far"<<endl;
+  
+  fclose(logfile_ptr);
 }
+
+
+//add int handler for exiting loop
+// add asserts for return codes
