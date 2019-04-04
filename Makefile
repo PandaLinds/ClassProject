@@ -10,19 +10,25 @@
 
 CC = g++
 
-INCLUDES = -I.
+INCLUDES =-I.
 
-LDFLAGS =
+CFLAGS = -Wall
 
-LIBS = -lm
+LDFLAGS = 
 
-all: inet_client inet_server
+LIBS = -lm libgps
 
-inet_clent: inet_clent.o
+all: inet_client inet_server localization
+
+localization: localization.o
 	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
  
 inet_server: inet_server.o
 	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
+	
+inet_clent: inet_clent.o
+	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
+
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
