@@ -10,6 +10,7 @@
 
 #define NSTRS 3
 #define DEFAULT_PORT 54321
+#define PRIMARY 1
 
 char *test_strs[NSTRS] = {
         "This is the first server string.\n",
@@ -18,9 +19,10 @@ char *test_strs[NSTRS] = {
 };
 
 extern int errno;
-extern void int_handler();
-extern void broken_pipe_handler();
-extern void serve_clients();
+extern void intHandler();
+extern void brokenPipeHandler();
+extern void serveClients();
+
 
 static int server_sock, client_sock;
 static int fromlen, i, j, num_sets;
@@ -29,6 +31,7 @@ static FILE *fp;
 static struct sockaddr_in server_sockaddr, client_sockaddr;
 
 /* Function prototypes */
-void serve_clients();
-void int_handler();
-void broken_pipe_handler();
+void serveClients();
+void intHandler();
+void brokenPipeHandler();
+void dumpSysLogs();
