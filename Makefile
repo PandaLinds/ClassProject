@@ -1,10 +1,11 @@
 #*******************************************************************************
 #
-# Sam Siewert
+# Team 5
 #
-# Makefile for Unix-based serial test tool
+# Makefile for Class Project
 #
 # Tested on Linux  2.4.2-2 #1 Sun Apr 8 20:41:30 EDT 2001 i686 unknown
+#    change
 #
 #*******************************************************************************
 
@@ -14,11 +15,11 @@ INCLUDES =-I.
 
 CFLAGS = -Wall
 
-LDFLAGS = 
+LDFLAGS = $(MKLROOT)/libgps.a
 
-LIBS = -lm libgps
+LIBS = -libgps -lm 
 
-all: inet_client inet_server localization
+all: localization inet_server inet_client 
 
 localization: localization.o
 	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
