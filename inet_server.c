@@ -1,3 +1,8 @@
+/*
+ * This module contains the code for the server.
+ */
+
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -10,8 +15,61 @@
 
 #include "inet_server.h"
 
+int main(void)
+{
+  char hostname[64];
+  struct hostent *hp;
+  struct linger opt;
+  int sockarg;
+  int isPrimary = 1;
+
+  gethostname(hostname, sizeof(hostname));
+
+  if((hp = (struct hostent*) gethostbyname(hostname)) == NULL)
+  {
+    fprintf(stderr, "Error: %s host unknown.\n", hostname);
+    exit(-1);
+  }
+
+  if((server_sock=socket(AF_INET, SOCK_STREAM, 0)) < 0)
+  {
+    perror("Server: socket");
+    exit(-1);
+  }
+
+  bzero((char*) &server_sockaddr, sizeof(server_sockaddr));
+  server_sockaddr.sin_family = AF_INET;
+  server_sockaddr.sin_port = htons(DEFAULT_PORT);
+  bcopy (hp->h_addr, &server_sockaddr.sin_addr, hp->h_length);
+
+  /* Bind address to the socket */
+  if(bind(server_sock, (struct sockaddr *) &server_sockaddr,
+     sizeof(server_sockaddr)) < 0) 
+  {
+    perror("Server: bind");
+    exit(-1);
+  }
+
+  /* turn on zero linger time so that undelivered data is discarded when
+     socket is closed
+   */
+  opt.l_onoff = 1;
+  opt.l_linger = 0;
+
+  sockarg = 1;
+ 
+  setsockopt(server_sock, SOL_SOCKET, SO_LINGER, (char*) &opt, sizeof(opt));
+  setsockopt(client_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&sockarg, sizeof(int));
+  signal(SIGINT, intHandler);
+  signal(SIGPIPE, brokenPipeHandler);
+
+  serveClients();
+
+  return 0;
+}
+
 /* Listen and accept loop function */
-void serve_clients()
+void serveClients()
 {
 
   for(;;)
@@ -69,8 +127,7 @@ void serve_clients()
 
 
 /* Close sockets after a Ctrl-C interrupt */
-
-void int_handler()
+void intHandler()
 {
   char ch;
 
@@ -91,7 +148,7 @@ void int_handler()
 }
 
 
-void broken_pipe_handler()
+void brokenPipeHandler()
 {
   char ch;
 
@@ -101,7 +158,7 @@ void broken_pipe_handler()
   if(ch == 'y')
   {
     printf("\nwill continue serving clients\n");
-    serve_clients();
+    serveClients();
   }
 
   else
@@ -112,54 +169,9 @@ void broken_pipe_handler()
 
 }
 
-int main()
-{
-  char hostname[64];
-  struct hostent *hp;
-  struct linger opt;
-  int sockarg;
+void dumpSysLogs()
+{ 
+  // Display log files
 
-  gethostname(hostname, sizeof(hostname));
 
-  if((hp = (struct hostent*) gethostbyname(hostname)) == NULL)
-  {
-    fprintf(stderr, "Error: %s host unknown.\n", hostname);
-    exit(-1);
-  }
-
-  if((server_sock=socket(AF_INET, SOCK_STREAM, 0)) < 0)
-  {
-    perror("Server: socket");
-    exit(-1);
-  }
-
-  bzero((char*) &server_sockaddr, sizeof(server_sockaddr));
-  server_sockaddr.sin_family = AF_INET;
-  server_sockaddr.sin_port = htons(DEFAULT_PORT);
-  bcopy (hp->h_addr, &server_sockaddr.sin_addr, hp->h_length);
-
-  /* Bind address to the socket */
-  if(bind(server_sock, (struct sockaddr *) &server_sockaddr,
-     sizeof(server_sockaddr)) < 0) 
-  {
-    perror("Server: bind");
-    exit(-1);
-  }
-
-  /* turn on zero linger time so that undelivered data is discarded when
-     socket is closed
-   */
-  opt.l_onoff = 1;
-  opt.l_linger = 0;
-
-  sockarg = 1;
- 
-  setsockopt(server_sock, SOL_SOCKET, SO_LINGER, (char*) &opt, sizeof(opt));
-  setsockopt(client_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&sockarg, sizeof(int));
-  signal(SIGINT, int_handler);
-  signal(SIGPIPE, broken_pipe_handler);
-
-  serve_clients();
-
-  return 0;
 }
