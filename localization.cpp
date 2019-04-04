@@ -81,6 +81,8 @@ double gpsComp(double lat1, double lat2, double long1, double long2)
   
 }
 
+#define SPOOF (1)
+
 //split initialization function?
 void GPS() // this function will be added to .h file when it is created. 
 {
@@ -128,6 +130,30 @@ void GPS() // this function will be added to .h file when it is created.
         // Do nothing until fix
         cout<<"Stuck trying to fix"<<endl;
       }
+
+      // Set spoof data here
+      if(SPOOF)
+      {
+         dataPtr = &gpsd_data;
+         cout << "Spoofing data" << endl;
+         dataPtr->fix.mode = MODE_3D;
+         dataPtr->fix.time = (timestamp_t) 999999999.11;
+         dataPtr->fix.ept = 0.0000000001;
+         dataPtr->fix.latitude = 1.0;
+         dataPtr->fix.epy = 0.0000000001;
+         dataPtr->fix.longitude = 1.0;
+         dataPtr->fix.epx = 0.0000000001;
+         dataPtr->fix.altitude = 7777777.11;
+         dataPtr->fix.epv = 0.0000000001;
+         dataPtr->fix.track = 0.0;
+         dataPtr->fix.epd = 0.0000000001;
+         dataPtr->fix.speed = 1.0;
+         dataPtr->fix.eps = 0.0000000001;
+         dataPtr->fix.climb = 1.0;
+         dataPtr->fix.epc = 0.0000000001;
+         cout << "Data spoofed" << endl;
+      }
+
       assert(dataPtr != NULL);
       assert(dataPtr->fix.mode >= MODE_2D);
       // log the gps binary data
@@ -135,19 +161,26 @@ void GPS() // this function will be added to .h file when it is created.
       
       
        
+      cout << "Time, lat, lon parsing" << endl;
+
       timestamp_t ts { dataPtr->fix.time };
       auto latitude  { dataPtr->fix.latitude };
       auto longitude { dataPtr->fix.longitude };
+
+      cout << "Time, lat, lon parsed" << endl;
       
       // convert GPSD's timestamp_t into time_t
       time_t seconds { (time_t)ts };
       auto   tm = *std::localtime(&seconds);
+
+      cout << "Time convert" << endl;
 
       std::ostringstream oss;
       oss << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
       auto time_str { oss.str() };
       instance1.saveGPSData((double)(latitude+0.000001), (double)(longitude+0.000001), time_str); //fix after comp works
       
+      cout << "Calling GPS comp" << endl;
       comp = gpsComp(instance1.latitude, latitude, instance1.longitude, longitude);
       cout<<"Distance: "<<comp<<endl;
       
