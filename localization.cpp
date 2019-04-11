@@ -12,6 +12,10 @@
 
 // process ok? how to start?
 
+// TODO: make seperate running file and this the test driver
+//       Makefile work
+//       Make Mapping 
+
 // g++ -Wall $(pkg-config --cflags --libs libgps) localization.cpp -o localize
 //   We are allowing C++14 because that is the R-Pi's standard
 
@@ -29,7 +33,7 @@ FILE *logfile_ptr;
 #include <unistd.h> //for syslog
 #include <syslog.h> //for syslog
 #include <assert.h> //for asserts
-#include <cmath>  //for converting to polar coordinates
+#include <cmath>  //for finding distances between coordinates
 
 #include <libgpsmm.h> // for GPS
 
@@ -49,6 +53,17 @@ class LOCATION
   //public:
   //funcitons LOCATION
   int saveGPSData(double, double, string);
+  LOCATION()
+  {
+    latitude = 0.0;
+    longitude = 0.0;
+    timeStamp = " ";
+    cout<<"made the class"<<endl;
+  }
+  ~LOCATION()
+  {
+    cout<<"Program is finished"<<endl;
+  }
   
 };
 
@@ -165,8 +180,8 @@ void GPS() // this function will be added to .h file when it is created.
       cout << "Time, lat, lon parsing" << endl;
 
       timestamp_t ts { dataPtr->fix.time };
-      auto latitude  { dataPtr->fix.latitude };
-      auto longitude { dataPtr->fix.longitude };
+      auto newLatitude  { dataPtr->fix.latitude };
+      auto newLongitude { dataPtr->fix.longitude };
 
       cout << "Time, lat, lon parsed" << endl;
       
@@ -179,11 +194,15 @@ void GPS() // this function will be added to .h file when it is created.
       std::ostringstream oss;
       oss << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
       auto time_str { oss.str() };
-      instance1.saveGPSData((double)(latitude+0.000001), (double)(longitude+0.000001), time_str); //fix after comp works
       
       cout << "Calling GPS comp" << endl;
-      comp = gpsComp(instance1.latitude, latitude, instance1.longitude, longitude);
+      comp = gpsComp(instance1.latitude, newLatitude, instance1.longitude, newLongitude);
       cout<<"Distance: "<<comp<<endl;
+      if (comp >= 3.0) 
+      {     
+        instance1.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
+      }
+      
       
     //}
   }
