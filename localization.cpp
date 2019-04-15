@@ -5,21 +5,8 @@
 // targeted for C++. When the latitude first is recorded, or 
 // moves more than 3 meters the lat/long data will be saved 
 // with a time stamp. 
-
-// what modules are being interfaced
-
-// assumes gpsd is running
-
-// process ok? how to start?
-
-// TODO: make seperate running file and this the test driver
-//       Makefile work
-//       Make Mapping 
-
 // g++ -Wall $(pkg-config --cflags --libs libgps) localization.cpp -o localize
 //   We are allowing C++14 because that is the R-Pi's standard
-
-// functions other than main will be converted to .h files 
 
 
 #include <stdio.h>
@@ -124,50 +111,17 @@ void GPS() // this function will be added to .h file when it is created.
   
   for (;;)  // change back while forever
   {
-    //if (!gps_rec.waiting(1000000)) continue;  //find what 1000000 is and make not magic number
     
     assert(gps_rec.waiting(1000000) == true );
     
     assert((dataPtr = gps_rec.read()) != NULL);
     
-    //if ((dataPtr = gps_rec.read()) == NULL) 
-    //{
-      //std::cerr << "GPSD read error.\n";
-    //} 
-    //else 
-    //{
-    
-      //while loop is needed
-      while (((dataPtr= gps_rec.read()) == NULL) ||
+    while (((dataPtr= gps_rec.read()) == NULL) ||
              (dataPtr->fix.mode < MODE_2D)) 
-      {
-		// uncomment break to continue with fake GSP data
-		 break;
+    {
+
         // Do nothing until fix
         cout<<"Stuck trying to fix"<<endl;
-      }
-
-      // Set spoof data here
-      if(SPOOF)
-      {
-         dataPtr = &gpsd_data;
-         cout << "Spoofing data" << endl;
-         dataPtr->fix.mode = MODE_3D;
-         dataPtr->fix.time = (timestamp_t) 999999999.11;
-         dataPtr->fix.ept = 0.0000000001;
-         dataPtr->fix.latitude = 1.0;
-         dataPtr->fix.epy = 0.0000000001;
-         dataPtr->fix.longitude = 1.0;
-         dataPtr->fix.epx = 0.0000000001;
-         dataPtr->fix.altitude = 7777777.11;
-         dataPtr->fix.epv = 0.0000000001;
-         dataPtr->fix.track = 0.0;
-         dataPtr->fix.epd = 0.0000000001;
-         dataPtr->fix.speed = 1.0;
-         dataPtr->fix.eps = 0.0000000001;
-         dataPtr->fix.climb = 1.0;
-         dataPtr->fix.epc = 0.0000000001;
-         cout << "Data spoofed" << endl;
       }
 
       assert(dataPtr != NULL);
@@ -213,7 +167,6 @@ void GPS() // this function will be added to .h file when it is created.
 
 int main(void)
 {
-  // error check this - TBD
   assert ((logfile_ptr = fopen("/tmp/gpslog.bin", "w")) >= 0);
   
   GPS();
@@ -224,4 +177,3 @@ int main(void)
 
 
 /*add int handler for exiting loop */
-// add asserts for return codes
