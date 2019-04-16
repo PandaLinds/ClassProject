@@ -9,9 +9,11 @@
 //   We are allowing C++14 because that is the R-Pi's standard
 
 
-#include <stdio.h>
-FILE *logfile_ptr;
+//look at http://www.infernodevelopment.com/c-log-file-class-forget-debuggers
+// for how to log
 
+
+#include <stdio.h>
 #include <iostream> 
 #include <string> //for time
 #include <iomanip> // for GPS I/O
@@ -92,8 +94,9 @@ void GPS(); // this function will be added to .h file when it is created.
 void signalHandler(int);
 
 
-//global so signal_handler will work
+//global so signal_handler will work and logs are correct
 LOCATION instance1;
+FILE *logfile_ptr;
 
 
 int main(void)
@@ -170,7 +173,7 @@ void GPS() // this function will be added to .h file when it is created.
 }
 
 
-/* Close sockets after a Ctrl-C interrupt */
+// destroy class and exit after ^c
 
 void signalHandler(int signum)
 {
