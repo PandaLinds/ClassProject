@@ -15,14 +15,17 @@ INCLUDES =-I.
 
 CFLAGS = -Wall
 
-LDFLAGS = $(MKLROOT)/libgps.a
+GPSFLAGS = `pkg-config --cflags --libs libgps`
 
-LIBS = -libgps -lm 
+LDFLAGS = -L /usr/lib/
 
-all: localization inet_server inet_client 
+LIBS = -lm 
+
+#all: localization inet_server inet_client
+all: localization
 
 localization: localization.o
-	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
+	$(CC) $(GPSFLAGS) $(LDFLAGS) $(LIBS) $^ -o $@
  
 inet_server: inet_server.o
 	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
