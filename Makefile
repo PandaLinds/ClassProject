@@ -38,5 +38,5 @@ inet_clent: inet_clent.o
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean :
-	echo *.o *.i *.s *~ \#*# core .#* .new* inet_server inet_client
-	rm -f *.o *.i *.s *~ \#*# core .#* .new* inet_server inet_client
+	echo *.o *.i *.s *~ \#*# core .#* .new* inet_server inet_client localization
+	rm -f *.o *.i *.s *~ \#*# core .#* .new* inet_server inet_client localization
