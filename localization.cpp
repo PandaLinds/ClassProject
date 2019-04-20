@@ -96,13 +96,14 @@ void GPS() // this function will be added to .h file when it is created.
     oss << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
     auto time_str { oss.str() };
       
-//    cout << "Calling GPS comp" << endl;
-//    comp = instance1.gpsComp(newLatitude, newLongitude);
-//    cout<<"Distance: "<<comp<<endl;
-//    if (comp >= 3.0) 
-//    {     
-//      instance1.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
-//    }
+    cout << "Calling GPS comp" << endl;
+    comp = instance1.gpsComp(newLatitude, newLongitude);
+    cout<<"Distance: "<<comp<<endl;
+    if (comp >= 3.0) 
+    {     
+      cout<<"saving"<<endl;
+      instance1.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
+    }
 
 // save to file to compare first?      
     
