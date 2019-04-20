@@ -12,7 +12,7 @@
 
 #include <libgpsmm.h> // for GPS
 
-using namespace std; //won't compile without this
+using namespace std; //won't compile stings without this
 
 //add class to .h file when created to match style guide.
 class LOCATION
@@ -52,6 +52,8 @@ int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
   std::cout.precision(6);
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   std::cout<<timeStamp<<","<<latitude<<","<<longitude<<endl;
+  
+  //save class to a file
   return 0;
   
 }
