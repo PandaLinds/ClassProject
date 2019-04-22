@@ -1,3 +1,6 @@
+#ifndef LOCALIZATION_HPP
+#define LOCALIZATION_HPP
+
 #include <stdio.h>
 #include <iostream> 
 #include <string> //for time
@@ -140,3 +143,6 @@ void GPS() // this function will be added to .h file when it is created.
     
   }
 }
+
+
+#endif
