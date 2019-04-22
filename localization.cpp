@@ -15,18 +15,9 @@
 
 #include <stdio.h>
 #include <iostream> 
-#include <string> //for time
-#include <iomanip> // for GPS I/O
-#include <ctime> //for converting time
-#include <sstream> //provides string stream classes
-#include <unistd.h> //for syslog
-#include <syslog.h> //for syslog
-#include <assert.h> //for asserts
-#include <cmath>  //for finding distances between coordinates
-#include <csignal>  // for ^c handler
+
 #include "localization.hpp" //for location funcitons
 
-#include <libgpsmm.h> // for GPS
 
 using namespace std;
 
