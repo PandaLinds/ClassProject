@@ -1,0 +1,31 @@
+INCLUDE_DIRS = 
+LIB_DIRS = 
+CC=g++
+
+CDEFS=
+CFLAGS= `pkg-config --cflags --libs libgps`
+GPSFLAGS = `pkg-config --cflags --libs libgps`
+LDFLAGS = -L /usr/lib/
+LIBS = -lm 
+
+DRIVER=locationTest
+
+HFILES= localization.hpp
+CFILES= locationTest.c localization.c
+
+SRCS= ${HFILES} ${CFILES}
+OBJS= ${CFILES:.c=.o}
+
+all:	${DRIVER}
+
+clean:
+	-rm -f *.o *.NEW *~
+	-rm -f ${DRIVER} ${DERIVED} ${GARBAGE}
+
+${DRIVER}:	${OBJS}
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+
+depend:
+
+.cpp.o:
+	$(CC) $(CFLAGS) -c $<
