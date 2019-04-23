@@ -13,12 +13,8 @@
 
 using namespace std;  //needed for use of string
 
-MAP serverMap;
 
-
-
-
-int testDriver()
+int main()
 {
   double testLat, testLong;
   string testID;
@@ -29,13 +25,3 @@ int testDriver()
   //call to test if map works
 }
 
-
-//destroying class and exiting after ^c
-void signalHandler(int signum)
-{
-  cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
-
-  //close things if need be
-  serverMap.~MAP();
-  exit(signum);
-}
