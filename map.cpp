@@ -13,14 +13,44 @@
 
 using namespace std;  //needed for use of string
 
-MAP serverMap;
+MAP::MAP()
+    {
+      head = NULL;
+      tail = NULL;
+    }
 
+MAP::~MAP()
+    {
+      NODE *n = this->head, *current = NULL;
+      
+      while(n)
+      {
+        current = n;
+        n = n->next;
+        free(current);
+      }
+      
+      head = tail = NULL;
+    }
 
-
-
-int main()
+void MAP::addNode (double newLat, double newLong, string newID)
 {
-  std::cout<<"I compile"<<std::endl;
+  NODE *tmp = new NODE;
+  tmp->monitor.latitude = newLat;
+  tmp->monitor.longitude = newLong;
+  tmp->monitor.monitorID = newID;
+  tmp->next = NULL;
+  
+  if(head == NULL)
+  {
+    head = tmp;
+    tail = tmp;
+  }
+  else
+  {
+    tail->next = tmp;
+    tail = tail->next;
+  }
 }
 
 
@@ -30,6 +60,6 @@ void signalHandler(int signum)
   cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
 
   //close things if need be
-  serverMap.~MAP();
+ // serverMap.~MAP();
   exit(signum);
 }
