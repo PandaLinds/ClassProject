@@ -1,5 +1,7 @@
 // Class and function definitions for map.cpp
 
+#ifndef MAP_HPP
+#define MAP_HPP
 
 // add logging to map, printing, compID, and TEST!!
 
@@ -28,47 +30,13 @@ class MAP
   public:
   //constuctors, destructors, and functions
   
-    MAP()
-    {
-      head = NULL;
-      tail = NULL;
-    }
-    
-    ~MAP()
-    {
-      NODE *n = this->head, *current = NULL;
-      
-      while(n)
-      {
-        current = n;
-        n = n->next;
-        free(current);
-      }
-      
-      head = tail = NULL;
-    }
-    
-    void addNode (double newLat, double newLong, string newID);
-    int checkID(string ID);
-    void printMap();
+  MAP();    
+  ~MAP();
+  void addNode (double newLat, double newLong, string newID);
+  int checkID(string ID);
+  void printMap();
 };
 
-void MAP::addNode (double newLat, double newLong, string newID)
-{
-  NODE *tmp = new NODE;
-  tmp->monitor.latitude = newLat;
-  tmp->monitor.longitude = newLong;
-  tmp->monitor.monitorID = newID;
-  tmp->next = NULL;
-  
-  if(head == NULL)
-  {
-    head = tmp;
-    tail = tmp;
-  }
-  else
-  {
-    tail->next = tmp;
-    tail = tail->next;
-  }
-}
+
+
+#endif
