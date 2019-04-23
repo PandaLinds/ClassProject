@@ -16,6 +16,8 @@ For enabling localizaiton with GPS:
 
 #Build
 1. *make* compiles the localization, map, server, and client.
+2. *make -f MakefileTest* compiles localization with its unit test.
+3. *make -f MakefileMapTest* compiles map with its unit test.
 
 #run
 1. type "./localization" to run the localization process.
@@ -36,3 +38,16 @@ gpsd -n -N -D 2 -S 6666 /dev/serial0
 
 *List ALSA devices:*
 aplay -L
+
+
+
+Testing:
+In order for this to work, localization and map must compile on the machine.
+
+#Build
+1. *make -f MakefileTest* compiles localization with its unit test.
+2. *make -f MakefileMapTest* compiles map with its unit test.
+
+#run
+1. type *./maptest* and enter promped information to run tests.
+2. type *./locationTest* to run the localization module with spoofed data.
