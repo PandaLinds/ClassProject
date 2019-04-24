@@ -16,12 +16,17 @@ using namespace std;  //needed for use of string
 
 int main()
 {
+	MAP testMap;
   double testLat, testLong;
   string testID;
+  //registering signal SIGINT and signal handler 
+  signal(SIGINT, signalHandler);
+  
+  testMap.printMap();
   cout<<"enter a latitude: "; cin>>testLat;
   cout<<"enter a longitude: "; cin>>testLong;
   cout<<"enter an ID: "; cin>>testID;
-  
-  //call to test if map works
+  testMap.addNode(testLat, testLong, testID);
+  testMap.printMap();
 }
 
