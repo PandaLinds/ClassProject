@@ -4,11 +4,10 @@
 //  location
 
 
-// add logging to map, printing, compID, and TEST!!
+// add logging to map, compID, and recieving from files
 
 #include <iostream>
 #include <string>
-#include <csignal>  // for ^c handler
 #include "map.hpp"  //for the use of map
 
 using namespace std;  //needed for use of string
@@ -62,14 +61,9 @@ void MAP::printMap()
   }
   while(copyMap != NULL)
   {
-    cout<<"Latitude: "<<copyMap->monitor.latitude<<", Longitude: "<<copyMap->monitor.latitude<<", Monitor ID: "<<copyMap->monitor.monitorID<<endl;
+    cout<<"Monitor ID: "<<copyMap->monitor.monitorID<<", Latitude: "<<copyMap->monitor.latitude<<", Longitude: "<<copyMap->monitor.latitude<<endl;
     copyMap = copyMap->next;
   }
 }
 
-//destroying class and exiting after ^c
-void signalHandler(int signum)
-{
-  cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
-  exit(signum);
-}
+
