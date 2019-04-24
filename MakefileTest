@@ -11,10 +11,10 @@ LIBS = -lm
 DRIVER=locationTest
 
 HFILES= localization.hpp
-CFILES= locationTest.c localization.c
+CFILES= locationTest.cpp localization.cpp
 
 SRCS= ${HFILES} ${CFILES}
-OBJS= ${CFILES:.c=.o}
+OBJS= ${CFILES:.cpp=.o}
 
 all:	${DRIVER}
 
