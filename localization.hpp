@@ -11,7 +11,6 @@
 #include <syslog.h> //for syslog
 #include <assert.h> //for asserts
 #include <cmath>  //for finding distances between coordinates
-#include <csignal>  // for ^c handler
 
 #include <libgpsmm.h> // for GPS
 
@@ -42,6 +41,6 @@ class LOCATION
 
 void trackGPS();
 
-void signalHandler(int signum);
+
 
 #endif
