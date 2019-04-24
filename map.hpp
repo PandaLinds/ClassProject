@@ -37,7 +37,7 @@ class MAP
   void printMap();
 };
 
-void signalHandler(int signum);
+
 
 
 #endif
