@@ -63,7 +63,7 @@ LOCATION gps;
 FILE *logfile_ptr;
 
 
-void GPS() // this function will be added to .h file when it is created. 
+void trackGPS() // this function will be added to .h file when it is created. 
 {
   gpsmm gps_rec("localhost", DEFAULT_GPSD_PORT);   //finds GPS, see what # the default port is
   
@@ -140,9 +140,6 @@ int log(void)
 void signalHandler(int signum)
 {
   cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
-
-  //close things if need be
-  gps.~LOCATION();
   exit(signum);
 }
 
