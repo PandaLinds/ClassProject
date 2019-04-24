@@ -1,6 +1,7 @@
 #include "localization.hpp"
 #include <stdio.h>
 #include <iostream> 
+#include <csignal>  // for ^c handler
 
 #include <libgpsmm.h> // for GPS
 
@@ -139,6 +140,7 @@ void spoofGPS() // this function will be added to .h file when it is created.
 
 //split initialization function?
 
+void signalHandler(int signum);
 
 int main(void)
 {
@@ -148,4 +150,14 @@ int main(void)
   spoofGPS();
   cout<<"I made it this far"<<endl;
   
+}
+
+
+
+// destroy class and exit after ^c
+
+void signalHandler(int signum)
+{
+  cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
+  exit(signum);
 }
