@@ -40,7 +40,7 @@ class LOCATION
 
 
 
-void GPS();
+void trackGPS();
 
 void signalHandler(int signum);
 
