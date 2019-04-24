@@ -4,7 +4,6 @@
 //  location
 
 
-// add logging to map, printing, compID, and TEST!!
 
 #include <iostream>
 #include <string>
@@ -13,6 +12,7 @@
 
 using namespace std;  //needed for use of string
 
+void signalHandler(int signum);
 
 int main()
 {
@@ -22,11 +22,22 @@ int main()
   //registering signal SIGINT and signal handler 
   signal(SIGINT, signalHandler);
   
-  testMap.printMap();
-  cout<<"enter a latitude: "; cin>>testLat;
-  cout<<"enter a longitude: "; cin>>testLong;
-  cout<<"enter an ID: "; cin>>testID;
-  testMap.addNode(testLat, testLong, testID);
-  testMap.printMap();
+  for (int i = 0; i<5; i++)
+  {
+    cout<<"enter a latitude: "; cin>>testLat;
+    cout<<"enter a longitude: "; cin>>testLong;
+    cout<<"enter an ID: "; cin>>testID;
+    testMap.addNode(testLat, testLong, testID);
+    testMap.printMap();
+  }
+  
 }
 
+
+
+//destroying class and exiting after ^c
+void signalHandler(int signum)
+{
+  cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
+  exit(signum);
+}
