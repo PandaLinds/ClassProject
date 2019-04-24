@@ -14,24 +14,24 @@
 using namespace std;  //needed for use of string
 
 MAP::MAP()
-    {
-      head = NULL;
-      tail = NULL;
-    }
+{
+  head = NULL;
+  tail = NULL;
+}
 
 MAP::~MAP()
-    {
-      NODE *n = this->head, *current = NULL;
-      
-      while(n)
-      {
-        current = n;
-        n = n->next;
-        free(current);
-      }
-      
-      head = tail = NULL;
-    }
+{
+  NODE *n = this->head, *current = NULL;
+  
+  while(n)
+  {
+    current = n;
+    n = n->next;
+    free(current);
+  }
+  
+  head = tail = NULL;
+}
 
 void MAP::addNode (double newLat, double newLong, string newID)
 {
@@ -53,13 +53,23 @@ void MAP::addNode (double newLat, double newLong, string newID)
   }
 }
 
+void MAP::printMap()
+{
+  NODE *copyMap = this->head;
+  if (copyMap == NULL)
+  {
+    cout<<"Nothing to print"<<endl;
+  }
+  while(copyMap != NULL)
+  {
+    cout<<"Latitude: "<<copyMap->monitor.latitude<<", Longitude: "<<copyMap->monitor.latitude<<", Monitor ID: "<<copyMap->monitor.monitorID<<endl;
+    copyMap = copyMap->next;
+  }
+}
 
 //destroying class and exiting after ^c
 void signalHandler(int signum)
 {
   cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
-
-  //close things if need be
- // serverMap.~MAP();
   exit(signum);
 }
