@@ -19,11 +19,10 @@ LOCATION::LOCATION()
   latitude = 0.0;
   longitude = 0.0;
   timeStamp = " ";
-  cout<<"made the class"<<endl;
 }
 LOCATION::~LOCATION()
 {
-  cout<<"Program is finished"<<endl;
+  cout<<"Program is finished, no longer tracking GPS data"<<endl;
 }
 
 int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
@@ -90,57 +89,40 @@ void trackGPS() // this function will be added to .h file when it is created.
     // log the gps binary data
   //  assert((fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr)) == true);
       
-      
-       
-    cout << "Time, lat, lon parsing" << endl;
     timestamp_t ts { dataPtr->fix.time };
     auto newLatitude  { dataPtr->fix.latitude };
     auto newLongitude { dataPtr->fix.longitude };
-    cout << "Time, lat, lon parsed" << endl;
       
     // convert GPSD's timestamp_t into time_t
     time_t seconds { (time_t)ts };
     auto   tm = *std::localtime(&seconds);
 
-    cout << "Time convert" << endl;
-
     std::ostringstream oss;
     oss << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
     auto time_str { oss.str() };
-      
-    cout << "Calling GPS comp" << endl;
+
     comp = gps.gpsComp(newLatitude, newLongitude);
-    cout<<"Distance: "<<comp<<endl;
+    
     if (comp >= 3.0) 
     {     
       cout<<"saving"<<endl;
       gps.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
     }
-
-// save to file to compare first?      
+     
     
   }
 }
 
 int log(void)
 {
-  //registering signal SIGINT and signal handler 
-  signal(SIGINT, signalHandler);
   assert ((logfile_ptr = fopen("/tmp/gpslog.bin", "w")) >= 0);
   
-//  testGPS();
   cout<<"I made it this far"<<endl;
   
   assert((fclose(logfile_ptr)) == true);
 }
 
 
-// destroy class and exit after ^c
 
-void signalHandler(int signum)
-{
-  cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
-  exit(signum);
-}
 
 
