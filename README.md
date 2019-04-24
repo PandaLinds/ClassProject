@@ -47,7 +47,9 @@ In order for this to work, localization and map must compile on the machine.
 #Build
 1. *make -f MakefileTest* compiles localization with its unit test.
 2. *make -f MakefileMapTest* compiles map with its unit test.
+3. *make -f Makefile2* to compile map and localization into a test driver.
 
 #run
 1. type *./maptest* and enter promped information to run tests.
 2. type *./locationTest* to run the localization module with spoofed data.
+3. type *./module* to run the localization and mapping concurrently 
