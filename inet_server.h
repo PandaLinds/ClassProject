@@ -22,6 +22,7 @@ extern int errno;
 extern void intHandler();
 extern void brokenPipeHandler();
 extern void serveClients();
+void dumpSysLogs();
 
 
 static int server_sock, client_sock;
@@ -29,9 +30,3 @@ static int fromlen, i, j, num_sets;
 static char c;
 static FILE *fp;
 static struct sockaddr_in server_sockaddr, client_sockaddr;
-
-/* Function prototypes */
-void serveClients();
-void intHandler();
-void brokenPipeHandler();
-void dumpSysLogs();
