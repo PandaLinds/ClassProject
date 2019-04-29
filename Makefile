@@ -9,33 +9,25 @@
 #
 #*******************************************************************************
 
-CC = g++
+CC = gcc
 
-INCLUDES =-I.
-CFLAGS = -Wall
-GPSFLAGS = `pkg-config --cflags --libs libgps`
-LDFLAGS = -L /usr/lib/
+INCLUDES =
+CFLAGS = 
+LDFLAGS = 
 LIBS = -lm 
 
-#all: localization inet_server inet_client
-all: localization map 
-
-localization: localization.o
-	$(CC) $(GPSFLAGS) $(LDFLAGS) $(LIBS) $^ -o $@
-
-map: map.o
-	$(CC) $^ -o $@
+all: inet_server inet_client2
 
 inet_server: inet_server.o
 	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
 	
-inet_clent: inet_clent.o
+inet_clent2: inet_clent2.o
 	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
 
 
-.cpp.o:
+.c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean :
-	echo *.o *.i *.s *~ \#*# core .#* .new* inet_server inet_client localization map
-	rm -f *.o *.i *.s *~ \#*# core .#* .new* inet_server inet_client localization map
+	echo *.o *.i *.s *~ \#*# core .#* .new* inet_server inet_client2 localization map
+	rm -f *.o *.i *.s *~ \#*# core .#* .new* inet_server inet_client2 localization map

@@ -3,27 +3,35 @@ LIB_DIRS =
 CC=g++
 
 CDEFS=
-CFLAGS= `pkg-config --cflags --libs libgps`
+CFLAGS= -Wall
 GPSFLAGS = `pkg-config --cflags --libs libgps`
 LDFLAGS = -L /usr/lib/
-LIBS = -lm 
+LLIBS = -lm 
+MLIBS = 
 
-DRIVER=locationTest
+LDRIVER=locationTest
+MDRIVER=mapTest
 
-HFILES= localization.hpp
-CFILES= locationTest.cpp localization.cpp
+LHFILES= localization.hpp
+MHFILES=  map.hpp
+LCFILES= locationTest.cpp localization.cpp
+MCFILES= map.cpp maptest.cpp
 
-SRCS= ${HFILES} ${CFILES}
-OBJS= ${CFILES:.cpp=.o}
+LSRCS= ${LHFILES} ${LCFILES}
+MSRCS= ${MHFILES} ${MCFILES}
+LOBJS= ${LCFILES:.cpp=.o}
+MOBJS= ${MCFILES:.cpp=.o}
 
-all:	${DRIVER}
+all:	${LDRIVER} ${MDRIVER}
 
 clean:
 	-rm -f *.o *.NEW *~
-	-rm -f ${DRIVER} ${DERIVED} ${GARBAGE}
+	-rm -f ${LDRIVER} ${DERIVED} ${GARBAGE}
 
-${DRIVER}:	${OBJS}
-	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+${LDRIVER}:	${LOBJS}
+	$(CC) $(LDFLAGS) $(CFLAGS) $(GPSFLAGS) -o $@ $(LOBJS) $(LLIBS)
+${MDRIVER}:	${MOBJS}
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(MOBJS) $(MLIBS)
 
 depend:
 
