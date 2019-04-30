@@ -22,7 +22,7 @@ LOCATION::LOCATION()
 }
 LOCATION::~LOCATION()
 {
-  cout<<"Program is finished, no longer tracking GPS data"<<endl;
+  fprintf(locationFilePtr, "GPS no longer tracking location\n");
 }
 
 int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
@@ -34,8 +34,9 @@ int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
   // set decimal precision
   std::cout.precision(6);
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
-  std::cout<<timeStamp<<","<<latitude<<","<<longitude<<endl;
-  
+  fprintf(locationFilePtr, "New Location:\n");
+  fprintf(locationFilePtr, "  %s, %f, %f\n", timeStamp, latitude, longitude);
+  //std::cout<<timeStamp<<","<<latitude<<","<<longitude<<endl;  
   //save class to a file
   return 0;
   
@@ -74,6 +75,7 @@ void trackGPS() // this function will be added to .h file when it is created.
   struct gps_data_t gpsd_data;  
   struct gps_data_t *dataPtr = &gpsd_data;
   double comp;
+  int fixCount;
   
   for (;;)  // change back while forever
   {
@@ -81,9 +83,12 @@ void trackGPS() // this function will be added to .h file when it is created.
     while (((dataPtr= gps_rec.read()) == NULL) ||
              (dataPtr->fix.mode < MODE_2D)) 
     {
-
         // Do nothing until fix
-        cout<<"Stuck trying to fix"<<endl;
+        if(fixCount == 190,000) //number to space out the printing
+        {
+          fprintf(locationFilePtr, "Not getting signal, stuck in loop trying to fix...\n");
+        }
+        fixCount++;
     }
 
 
@@ -104,7 +109,6 @@ void trackGPS() // this function will be added to .h file when it is created.
     
     if (comp >= 3.0) 
     {     
-      cout<<"saving"<<endl;
       gps.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
     }
      
