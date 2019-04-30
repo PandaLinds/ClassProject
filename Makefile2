@@ -11,8 +11,8 @@ MONLIBS = -pthread
 
 TARGET=monitor
 
-HFILES= localization.hpp map.hpp
-CFILES= localization.cpp map.cpp monitor.cpp
+HFILES= localization.hpp map.hpp acousticEm.hpp
+CFILES= localization.cpp map.cpp acousticEm.cpp monitor.cpp
 
 SRCS= ${HFILES} ${CFILES}
 OBJS= ${CFILES:.cpp=.o}
