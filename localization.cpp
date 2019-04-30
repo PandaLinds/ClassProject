@@ -59,7 +59,7 @@ double LOCATION::gpsComp(double lat, double lon)
 
 //global so signal_handler will work and logs are correct
 LOCATION gps;
-FILE *logfile_ptr;
+
 
 
 void trackGPS() // this function will be added to .h file when it is created. 
@@ -83,11 +83,10 @@ void trackGPS() // this function will be added to .h file when it is created.
     {
 
         // Do nothing until fix
-        //cout<<"Stuck trying to fix"<<endl;
+        cout<<"Stuck trying to fix"<<endl;
     }
 
-    // log the gps binary data
-  //  assert((fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr)) == true);
+
       
     timestamp_t ts { dataPtr->fix.time };
     auto newLatitude  { dataPtr->fix.latitude };
@@ -115,10 +114,12 @@ void trackGPS() // this function will be added to .h file when it is created.
 
 int log(void)
 {
+  FILE *logfile_ptr;
   assert ((logfile_ptr = fopen("/tmp/gpslog.bin", "w")) >= 0);
   
   cout<<"I made it this far"<<endl;
-  
+  // log the gps binary data
+  //  assert((fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr)) == true);
   assert((fclose(logfile_ptr)) == true);
 }
 
