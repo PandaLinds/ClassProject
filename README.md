@@ -60,4 +60,4 @@ Note: This only works if it is run on the same machine as the server. Otherwise,
 
 #Server startup
 1. To use the default port (54321), start the server with just ./inet_server
-2. To use a custom port, start with ./inet_Server [port]
+2. To use a custom port, start with ./inet_server [port]
