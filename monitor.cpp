@@ -30,14 +30,14 @@ int main()
   
   pthread_create(&GPS, NULL, &GPSthread, NULL);
   
-  for (int i = 0; i<5; i++)
-  {
-    cout<<"enter a latitude: "; cin>>testLat;
-    cout<<"enter a longitude: "; cin>>testLong;
-    cout<<"enter an ID: "; cin>>testID;
-    testMap.addNode(testLat, testLong, testID);
-    testMap.printMap();
-  }
+//  for (int i = 0; i<5; i++)
+//  {
+//    cout<<"enter a latitude: "; cin>>testLat;
+//    cout<<"enter a longitude: "; cin>>testLong;
+//    cout<<"enter an ID: "; cin>>testID;
+//    testMap.addNode(testLat, testLong, testID);
+//    testMap.printMap();
+//  }
   pthread_join(GPS, NULL);
 }
 
