@@ -23,10 +23,13 @@ using namespace std; //won't compile stings without this
 class LOCATION
 {
   private:
-  //the lat/long data is in DBUS_TYPE_DOUBLE but will not compile.
-  // will convert when necessary.
-  double latitude, longitude;
-  string timeStamp;
+  struct gpsData
+  {
+    //the lat/long data is in DBUS_TYPE_DOUBLE but will not compile.
+    // will convert when necessary.
+    double latitude, longitude;
+    string currentTime;
+  };
   
   public:
   //funcitons LOCATION
@@ -38,7 +41,7 @@ class LOCATION
 };
 
 static FILE *locationFilePtr= fopen("monitorLog.txt", "a");
-
+//add a file to save GPS data
 void trackGPS();
 
 
