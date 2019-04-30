@@ -10,19 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
-
-#define NSTRS 3
-#define MAX_IT 1
-#define LOCAL_PORT 54321
-
-char *strs[NSTRS] = {
-	"This is the first client string.\n",
-	"This is the second client string.\n",
-	"This is the third client string.\n"
-};
-
-extern int errno;
-extern void broken_pipe_handler();
+#include "inet_client.h"
 
 int main(argc, argv)
 int argc;
@@ -37,19 +25,19 @@ char **argv;
   int sockarg;
  
 
-  if(argc < 2)
+  if (argc < 2)
   {
     printf("Usage: inet_client <server hostname>\n");
     exit(-1);
   }
 
-  if((hp = gethostbyname(argv[1])) == NULL)
+  if ((hp = gethostbyname(argv[1])) == NULL)
   {
     fprintf(stderr, "Error: %s unknown host.\n", argv[1]);
     exit(-1);
   }
 
-  if((client_sock=socket(AF_INET, SOCK_STREAM, 0)) < 0)
+  if ((client_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     perror("client: socket");
     exit(-1);
@@ -69,11 +57,11 @@ char **argv;
 
   setsockopt(client_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&sockarg, sizeof(int));
 
-  if(connect(client_sock, (struct sockaddr*)&client_sockaddr,
+  while (connect(client_sock, (struct sockaddr*)&client_sockaddr,
      sizeof(client_sockaddr)) < 0) 
   {
-    perror("client: connect");
-    exit(-1);
+    printf("Unable to connect to server... retrying in 5 seconds...\n");
+    sleep(5);
   }
 
   signal(SIGPIPE, broken_pipe_handler);
@@ -84,24 +72,24 @@ char **argv;
 
   send(client_sock, (char *)&num_sets, sizeof(int), 0);
 
-  for(j=0;j<num_sets;j++)
+  for (j = 0; j < num_sets; j++)
   {
 
     /* Read server strings and print them out */
-    for (i=0; i<NSTRS; i++)
+    for (i = 0; i < NSTRS; i++)
     {
-      while((c = fgetc(fp)) != EOF)
+      while ((c = fgetc(fp)) != EOF)
       {
         putchar(c);
 
-        if(c=='\n')
+        if (c == '\n')
         break;
 
       }
     }
 
     /* Send strings to the server */
-    for (i=0; i<NSTRS; i++)
+    for (i = 0; i < NSTRS; i++)
       send(client_sock, strs[i], strlen(strs[i]), 0);
 
   }
