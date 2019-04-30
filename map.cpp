@@ -61,6 +61,8 @@ void MAP::printMap()
   }
   while(copyMap != NULL)
   {
+    fprintf(mapFilePtr, "New map point:\n");
+    fprintf(mapFilePtr, "  %s, %f, %f\n", copyMap->monitor.monitorID, copyMap->monitor.latitude, copyMap->monitor.latitude);
     cout<<"Monitor ID: "<<copyMap->monitor.monitorID<<", Latitude: "<<copyMap->monitor.latitude<<", Longitude: "<<copyMap->monitor.latitude<<endl;
     copyMap = copyMap->next;
   }
