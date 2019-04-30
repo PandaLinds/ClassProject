@@ -37,7 +37,7 @@ class LOCATION
   
 };
 
-
+static FILE *locationFilePtr= fopen("monitorLog.txt", "a");
 
 void trackGPS();
 
