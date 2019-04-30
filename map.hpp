@@ -37,7 +37,7 @@ class MAP
   void printMap();
 };
 
-
+static FILE *mapFilePtr= fopen("monitorLog.txt", "a");
 
 
 #endif
