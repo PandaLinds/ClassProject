@@ -8,6 +8,6 @@ void emulateDetection()
   //system("cat /var/log/syslog | grep R-PI-MONITOR > monitorLog.txt"); 
   //syslog(LOG_NOTICE, "%s", "Starting log...\n");  
   //syslog(LOG_NOTICE, "%s", "Initialization successful, beginning to serve clients...\n");
-  fprintf(acousticFilePtr, "\n");
+  fprintf(acousticFilePtr, "I think I heard something\n");
   //fclose(acousticFilePtr); //used in test code for now
 }
