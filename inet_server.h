@@ -1,32 +1,29 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <strings.h>
-#include <string.h>
+#include <ctype.h>      /* For tolower()                 */
+#include <netdb.h>      /* For gethostbyname()           */
+#include <netinet/in.h> /* For server_sockaddr           */
+#include <signal.h>     /* For sigHandler()              */
+#include <stdio.h>      /* For printf() and scanf()      */
+#include <stdlib.h>     /* For NULL                      */
+#include <string.h>     /* For strlen()                  */
+#include <strings.h>    /* For bzero()                   */
+#include <syslog.h>     /* For syslog()                  */
+#include <sys/socket.h> /* For socket()                  */
+#include <sys/types.h>  /* For socket()                  */
+#include <unistd.h>     /* For gethostname() and sleep() */
 
-#define NSTRS 3
 #define DEFAULT_PORT 54321
-#define PRIMARY 1
 
-char *test_strs[NSTRS] = {
-        "This is the first server string.\n",
-        "This is the second server string.\n",
-        "This is the third server string.\n"
-};
+char* testStr = "Connection to server successful.\n";
 
 extern int errno;
-extern void intHandler();
+extern void sigHandler();
 extern void brokenPipeHandler();
 extern void serveClients();
-void dumpSysLogs();
+void viewSysLogs();
 
 
 static int server_sock, client_sock;
-static int fromlen, i, j, num_sets;
+static int fromlen, i, j, numSets;
 static char c;
 static FILE *fp;
 static struct sockaddr_in server_sockaddr, client_sockaddr;
