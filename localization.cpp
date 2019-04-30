@@ -16,9 +16,9 @@
 
 LOCATION::LOCATION()
 {
-  latitude = 0.0;
-  longitude = 0.0;
-  timeStamp = " ";
+  gpsData.latitude = 0.0;
+  gpsData.longitude = 0.0;
+  gpsData.CurrentTime = " ";
 }
 LOCATION::~LOCATION()
 {
@@ -28,14 +28,14 @@ LOCATION::~LOCATION()
 int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
 {
   //add aserts to prove lat/long not 0 
-  latitude = GPSlat;
-  longitude = GPSlong;
-  timeStamp = time;
+  gpsData.latitude = GPSlat;
+  gpsData.longitude = GPSlong;
+  gpsData.timeStamp = time;
   // set decimal precision
   std::cout.precision(6);
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   fprintf(locationFilePtr, "New Location:\n");
-  fprintf(locationFilePtr, "  %s, %f, %f\n", timeStamp, latitude, longitude);
+  fprintf(locationFilePtr, "  %s, %f, %f\n", gpsData.currentTime, gpsData.latitude, gpsData.longitude);
   //std::cout<<timeStamp<<","<<latitude<<","<<longitude<<endl;  
   //save class to a file
   return 0;
@@ -48,7 +48,7 @@ double LOCATION::gpsComp(double lat, double lon)
   //compare lat/longs in meters using the Hervsine method
   double hervsine, useHervsine, distanceMeters, earthRadMeters = 6371;
   
-  hervsine =  (pow((sin((latitude-lat)/2)),2)+(cos(lat)*cos(latitude)*pow((sin((longitude-lon)/2)),2)));
+  hervsine =  (pow((sin((gpsData.latitude-lat)/2)),2)+(cos(lat)*cos(gpsData.latitude)*pow((sin((gpsData.longitude-lon)/2)),2)));
   
   useHervsine = 2*atan2(sqrt(hervsine), sqrt(1.0-hervsine));
   
@@ -116,7 +116,7 @@ void trackGPS() // this function will be added to .h file when it is created.
   }
 }
 
-int log(void)
+int log(void) // have as a seperate thing in the Main?
 {
   FILE *logfile_ptr;
   assert ((logfile_ptr = fopen("/tmp/gpslog.bin", "w")) >= 0);
