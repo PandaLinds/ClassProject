@@ -21,16 +21,18 @@ int main()
   
   while(FOREVER)
   {
-    if((dist(eng))<50)
+    if(((dist(eng))==1)&&((dist(eng))==1)&&((dist(eng))==1))
     {
       emulateDetection();
     }
   }
+  fclose(acousticFilePtr);
 }
 
 void signalHandler(int signum)
 {
   std::cout<<"Interupt signal \""<<signum<<"\" recieved"<<std::endl;
-  exit(signum);
   fclose(acousticFilePtr);
+  exit(signum);
+  
 }
