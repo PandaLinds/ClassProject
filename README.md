@@ -53,3 +53,7 @@ In order for this to work, localization and map must compile on the machine.
 1. type *./maptest* and enter promped information to run tests.
 2. type *./locationTest* to run the localization module with spoofed data.
 3. type *./module* to run the localization and mapping concurrently 
+
+#Client startup
+1. type "hostname" in the terminal and then use that as the input for ./inet_client2 [hostname] 
+Note: This only works if it is run on the same machine as the server. Otherwise, use the hostname of the server's machine.
