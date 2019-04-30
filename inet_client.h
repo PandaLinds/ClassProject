@@ -10,16 +10,14 @@
 #include <string.h>
 #include <unistd.h>
 
-#define NSTRS 3
-#define MAX_IT 1
 #define LOCAL_PORT 54321
 
-char *strs[NSTRS] = {
-	"This is the first client string.\n",
-	"This is the second client string.\n",
-	"This is the third client string.\n"
+char *strs[2] = {
+	"Connection to client succesful.\n",
+	"34.54000, 112.46850.\n"
 };
 
+
+	
 extern int errno;
 extern void broken_pipe_handler();
-
