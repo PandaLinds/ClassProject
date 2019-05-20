@@ -16,20 +16,20 @@
 
 
 
-
 using namespace std; //won't compile stings without this
 
 //add class to .h file when created to match style guide.
 class LOCATION
 {
   private:
-  struct gpsData
+  struct GPS_DATA
   {
     //the lat/long data is in DBUS_TYPE_DOUBLE but will not compile.
     // will convert when necessary.
     double latitude, longitude;
     string currentTime;
   };
+  GPS_DATA gpsData; 
   
   public:
   //funcitons LOCATION
@@ -41,8 +41,10 @@ class LOCATION
 };
 
 static FILE *locationFilePtr= fopen("monitorLog.txt", "a");
+static FILE *logfile_ptr;
 //add a file to save GPS data
 void trackGPS();
+void spoofGPS();
 
 
 
