@@ -1,3 +1,7 @@
+/*
+ * This is the module for the client.
+ */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -68,31 +72,33 @@ char **argv;
 
   fp = fdopen(client_sock, "r");
 
-  num_sets = MAX_IT;
+  num_sets = 2;
 
   send(client_sock, (char *)&num_sets, sizeof(int), 0);
 
   for (j = 0; j < num_sets; j++)
   {
 
-    /* Read server strings and print them out */
-    for (i = 0; i < NSTRS; i++)
+    /* Read the server string and print it out */
+    while ((c = fgetc(fp)) != EOF)
     {
-      while ((c = fgetc(fp)) != EOF)
-      {
-        putchar(c);
+      putchar(c);
 
-        if (c == '\n')
-        break;
-
-      }
+      if (c == '\n')
+      break;
     }
 
-    /* Send strings to the server */
-    for (i = 0; i < NSTRS; i++)
+    /* Send test string and then lat and long to the server */
+    for (i = 0; i < 2; i++)
       send(client_sock, strs[i], strlen(strs[i]), 0);
 
   }
+
+  /* Listen for drones and alert the server when one is heard 
+  while (1) {
+
+  }
+  */
 
   close(client_sock);
 

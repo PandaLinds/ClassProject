@@ -2,28 +2,27 @@
  * This module contains the code for the communication manager.
  */
 
-#include <ctype.h> /* For tolower() */
-#include <netdb.h>
-#include <netinet/in.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-#include <syslog.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <ctype.h>      /* For tolower()                 */
+#include <netdb.h>      /* For gethostbyname()           */
+#include <netinet/in.h> /* For server_sockaddr           */
+#include <signal.h>     /* For sigHandler()              */
+#include <stdio.h>      /* For printf() and scanf()      */
+#include <stdlib.h>     /* For NULL                      */
+#include <string.h>     /* For strlen()                  */
+#include <strings.h>    /* For bzero()                   */
+#include <syslog.h>     /* For syslog()                  */
+#include <sys/socket.h> /* For socket()                  */
+#include <sys/types.h>  /* For socket()                  */
+#include <unistd.h>     /* For gethostname() and sleep() */
 
 #include "inet_server.h"
 
-int main(void)
+int main(int argc, char **argv)
 {
   char hostname[64];
   struct hostent *hp;
   struct linger opt;
   int sockarg;
-  int isPrimary = 1;
 
   openlog("R-PI-Server", LOG_CONS | LOG_PID, LOG_USER);
   /* Log to myLog.txt instead of /var/log/syslog */
@@ -46,7 +45,11 @@ int main(void)
 
   bzero((char*) &server_sockaddr, sizeof(server_sockaddr));
   server_sockaddr.sin_family = AF_INET;
-  server_sockaddr.sin_port = htons(DEFAULT_PORT);
+  /* Connect to the default port if none is given, otherwise use the value passed in */
+  if (argc < 2)
+    server_sockaddr.sin_port = htons(DEFAULT_PORT);
+  else
+    server_sockaddr.sin_port = htons((int)argv[1]);
   bcopy (hp->h_addr, &server_sockaddr.sin_addr, hp->h_length);
 
   /* Bind address to the socket */
@@ -67,7 +70,7 @@ int main(void)
  
   setsockopt(server_sock, SOL_SOCKET, SO_LINGER, (char*) &opt, sizeof(opt));
   setsockopt(client_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&sockarg, sizeof(int));
-  signal(SIGINT, intHandler);
+  signal(SIGINT, sigHandler);
   signal(SIGPIPE, brokenPipeHandler);
 
   syslog(LOG_NOTICE, "%s", "Initialization successful, beginning to serve clients...\n");
@@ -104,35 +107,33 @@ void serveClients()
       exit(-1);
     }
     fp = fdopen(client_sock, "r");
+    syslog(LOG_NOTICE, "%s", "Accepted new client connection.\n");
 
-    recv(client_sock, (char *)&num_sets, sizeof(int), 0);
-    printf("number of sets = %d\n", num_sets);
+    recv(client_sock, (char *)&numSets, sizeof(int), 0);
+    printf("number of sets = %d\n", numSets);
 
-    for (j = 0; j < num_sets; j++)
+    /* Send test string to the client */
+    send(client_sock, testStr, strlen(testStr), 0);
+    syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
+
+   // while (1) {
+    for (j = 0; j < numSets; j++)
     {
 
-      /* Send strings to the client */
-      for (i = 0; i < NSTRS; i++)
-      {
-        send(client_sock, test_strs[i], strlen(test_strs[i]), 0);
-        /* if backup, send map and data files */
-      }
       /* Read client strings and print them out */
-      for (i = 0; i < NSTRS; i++)
+      while((c = fgetc(fp)) != EOF)
       {
-        while((c = fgetc(fp)) != EOF)
-        {
-	  if (num_sets < 4)
-            putchar(c);
+	if (numSets < 4)
+          putchar(c);
 
-          if (c == '\n')
-            break;
-        } /* end while */
+        if (c == '\n')
+          break;
+      } /* end while */
+      syslog(LOG_NOTICE, "%s", "Received message from client."); 
 
 
-      } /* end for NSTRS */
-
-    } /* end for num_sets */
+    } /* end for numSets */
+//}
 
     close(client_sock);
     syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
@@ -143,8 +144,8 @@ void serveClients()
 }
 
 
-/* Close sockets after a Ctrl-C interrupt */
-void intHandler()
+/* Close sockets after a Ctrl-C signal */
+void sigHandler()
 {
   char ch;
   syslog(LOG_NOTICE, "%s", "Ctrl-C interrupt\n");
@@ -156,13 +157,13 @@ void intHandler()
   {
     printf("\nSockets are being closed\n");
     close(client_sock);
-    close(server_sock);
     syslog(LOG_NOTICE, "%s", "Sockets closed...\n");
     printf("Would you like to shut down the server?\n");
     scanf(" %c", &ch);
     ch = tolower(ch);
     if (ch == 'y')
     {
+      close(server_sock);
       syslog(LOG_NOTICE, "%s", "Server shutting down...\n");
       printf("Shutting down ...\n");
       exit(0);
@@ -204,7 +205,7 @@ void intHandler()
   }
 }
 
-
+/* Handle broken connections with a client */
 void brokenPipeHandler()
 {
   char ch;
@@ -235,9 +236,12 @@ void brokenPipeHandler()
   }
 }
 
-void dumpSysLogs()
+// Display log file data
+void viewSysLogs()
 {
-  // Display log file data
+  FILE *fp3 = fopen("myLog.txt", "r");
+
+  fclose(fp3);
 
 
 }
