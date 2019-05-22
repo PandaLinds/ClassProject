@@ -15,6 +15,7 @@
 //converting c++ string into string. Need to remember how to.
 
 #include "localization.hpp" 
+#define SPOOF (1)
 
 
 LOCATION::LOCATION()
@@ -22,12 +23,12 @@ LOCATION::LOCATION()
   gpsData.latitude = 0.0;
   gpsData.longitude = 0.0;
   gpsData.currentTime = " ";
-  assert ((logfile_ptr = fopen("/tmp/gpslog.bin", "w")) >= 0);
 }
 LOCATION::~LOCATION()
 {
   fprintf(locationFilePtr, "GPS no longer tracking location\n");
-  assert((fclose(logfile_ptr)) == true);
+  fprintf(locationDataPtr, "GPS no longer tracking location\n");
+  fclose(locationDataPtr);
 }
 
 int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
@@ -42,7 +43,9 @@ int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
   fprintf(locationFilePtr, "New Location:\n");
   fprintf(locationFilePtr, "  %s, %f, %f\n", gpsData.currentTime, gpsData.latitude, gpsData.longitude);
   //std::cout<<timeStamp<<","<<latitude<<","<<longitude<<endl;  
-  //save class to a file
+  //save structure to a file
+  //assert((fwrite(dataToSave, sizeof(struct GPS_DATA), 1, locationDataPtr)) == true);
+  fprintf(locationDataPtr, "New Location:\n");
   return 0;
   
 }
@@ -68,13 +71,14 @@ LOCATION gps;
 
 
 
-void trackGPS() // this function will be added to .h file when it is created. 
+void trackGPS() 
 {
   gpsmm gps_rec("localhost", DEFAULT_GPSD_PORT);   //finds GPS, see what # the default port is
   
   if (gps_rec.stream(WATCH_ENABLE | WATCH_JSON) == NULL) // ENABLE turns off repording modes, JSON turns on JSON reporting data
   {
     std::cerr << "No GPSD running.\n";
+    fprintf(locationFilePtr, "Can't get GPS to stream.\n");
   }
   
   struct gps_data_t gpsd_data;  
@@ -89,7 +93,7 @@ void trackGPS() // this function will be added to .h file when it is created.
              (dataPtr->fix.mode < MODE_2D)) 
     {
         // Do nothing until fix
-        if(fixCount == 190,000) //number to space out the printing
+        if(fixCount == 190000) //number to space out the printing
         {
           fprintf(locationFilePtr, "Not getting signal, stuck in loop trying to fix...\n");
         }
@@ -123,11 +127,13 @@ void trackGPS() // this function will be added to .h file when it is created.
 
 void spoofGPS()
 {
+  fprintf(locationFilePtr, "I am now spoofing\n");
   gpsmm gps_rec("localhost", DEFAULT_GPSD_PORT);   //finds GPS, see what # the default port is
   
   if (gps_rec.stream(WATCH_ENABLE | WATCH_JSON) == NULL) // ENABLE turns off repording modes, JSON turns on JSON reporting data
   {
     std::cerr << "No GPSD running.\n";
+    fprintf(locationFilePtr, "Can't get GPS to stream\n");
   }
   
   struct gps_data_t gpsd_data;  
@@ -212,12 +218,12 @@ void spoofGPS()
     while (((dataPtr= gps_rec.read()) == NULL) ||
              (dataPtr->fix.mode < MODE_2D)) 
     {
-        // Do nothing until fix
-        if(fixCount == 190,000) //number to space out the printing
-        {
-          fprintf(locationFilePtr, "Not getting signal, stuck in loop trying to fix...\n");
-        }
-        fixCount++;
+       // Do nothing until fix
+       if(fixCount == 190000) //number to space out the printing
+       {
+         fprintf(locationFilePtr, "Not getting signal, stuck in loop trying to fix...\n");
+       }
+       fixCount++;
     }
 
     // log the gps binary data
