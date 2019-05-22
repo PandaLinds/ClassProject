@@ -30,6 +30,7 @@ class LOCATION
     string currentTime;
   };
   GPS_DATA gpsData; 
+  GPS_DATA *dataToSave = &gpsData;
   
   public:
   //funcitons LOCATION
@@ -41,7 +42,7 @@ class LOCATION
 };
 
 static FILE *locationFilePtr= fopen("monitorLog.txt", "a");
-static FILE *logfile_ptr;
+static FILE *locationDataPtr= fopen("locationData.txt", "a");
 //add a file to save GPS data
 void trackGPS();
 void spoofGPS();
