@@ -5,7 +5,7 @@
 
 #include <libgpsmm.h> // for GPS
 
-#define SPOOF (1)
+
 
 //split initialization function?
 
