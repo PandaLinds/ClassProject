@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 
   sockarg = 1;
  
-  setsockopt(server_sock, SOL_SOCKET, SO_LINGER, (char*) &opt, sizeof(opt));
+  setsockopt(server_sock, SOL_SOCKET, SO_LINGER, (char*) &opt, sizeof(opt));  //where is server/client_sock
   setsockopt(client_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&sockarg, sizeof(int));
   signal(SIGINT, sigHandler);
   signal(SIGPIPE, brokenPipeHandler);
@@ -123,7 +123,7 @@ void serveClients()
       /* Read client strings and print them out */
       while((c = fgetc(fp)) != EOF)
       {
-	if (numSets < 4)
+	      if (numSets < 4)
           putchar(c);
 
         if (c == '\n')
