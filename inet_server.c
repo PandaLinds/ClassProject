@@ -108,38 +108,42 @@ void serveClients()
     }
     fp = fdopen(client_sock, "r");
     syslog(LOG_NOTICE, "%s", "Accepted new client connection.\n");
-
+    
+    
     recv(client_sock, (char *)&numSets, sizeof(int), 0);
     printf("number of sets = %d\n", numSets);
 
-    /* Send test string to the client */
-    send(client_sock, testStr, strlen(testStr), 0);
-    syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
-
-   // while (1) {
-    for (j = 0; j < numSets; j++)
+    while (1) 
     {
-
-      /* Read client strings and print them out */
-      while((c = fgetc(fp)) != EOF)
+      /* Send test string to the client */
+      send(client_sock, testStr, strlen(testStr), 0);
+      syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
+  
+      
+      for (j = 0; j < numSets; j++)
       {
-	      if (numSets < 4)
-          putchar(c);
+  
+        /* Read client strings and print them out */
+        while((c = fgetc(fp)) != EOF)
+        {
+          if (numSets < 4)
+            putchar(c);
+  
+          if (c == '\n')
+            break;
+        } /* end while */
+        syslog(LOG_NOTICE, "%s", "Received message from client."); 
+  
+  
+      } /* end for numSets */
+    
+      //close(client_sock);
+      //syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
+      //fclose(fp2);
+  
+    } 
+  } //end forever
 
-        if (c == '\n')
-          break;
-      } /* end while */
-      syslog(LOG_NOTICE, "%s", "Received message from client."); 
-
-
-    } /* end for numSets */
-//}
-
-    close(client_sock);
-    syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
-    fclose(fp2);
-
-  } /* end for ever */
 
 }
 
