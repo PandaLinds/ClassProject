@@ -9,6 +9,7 @@
 #include <strings.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>     /* For sigHandler()              */
 
 #define LOCAL_PORT 54321
 
@@ -21,3 +22,4 @@ char *strs[2] = {
 	
 extern int errno;
 extern void broken_pipe_handler();
+extern void sigHandler();
