@@ -15,7 +15,7 @@ int main(void)
 {
   //registering signal SIGINT and signal handler 
   signal(SIGINT, signalHandler);
-  
+  //trackGPS();
   spoofGPS();
   cout<<"I made it this far"<<endl;
   
