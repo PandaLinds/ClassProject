@@ -27,7 +27,7 @@ LOCATION::LOCATION()
 LOCATION::~LOCATION()
 {
   fprintf(locationFilePtr, "GPS no longer tracking location\n");
-  fprintf(locationDataPtr, "GPS no longer tracking location\n");
+  //fprintf(locationDataPtr, "GPS no longer tracking location\n");
   fclose(locationDataPtr);
 }
 
@@ -41,14 +41,16 @@ int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
   std::cout.precision(6);
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   fprintf(locationFilePtr, "New Location:\n");
-  fprintf(locationFilePtr, "  %s, %f, %f\n", gpsData.currentTime, gpsData.latitude, gpsData.longitude);
+  fprintf(locationFilePtr, "  %s, %f, %f\n", gpsData.currentTime.c_str(), gpsData.latitude, gpsData.longitude);
   //std::cout<<timeStamp<<","<<latitude<<","<<longitude<<endl;  
   //save structure to a file
-  //assert((fwrite(dataToSave, sizeof(struct GPS_DATA), 1, locationDataPtr)) == true);
+  assert((fwrite(dataToSave, sizeof(struct GPS_DATA), 1, locationDataPtr)) == true);
   fprintf(locationDataPtr, "New Location:\n");
   return 0;
   
 }
+
+//add a function that compares the time as well!
 
 
 double LOCATION::gpsComp(double lat, double lon)
@@ -263,6 +265,7 @@ int log(void) // have as a seperate thing in the Main?
   // log the gps binary data
   //  assert((fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr)) == true);
   assert((fclose(logfile_ptr)) == true);
+  return 1;
 }
 
 
