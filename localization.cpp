@@ -16,6 +16,7 @@
 
 #include "localization.hpp" 
 #define SPOOF (1)
+#define SECONDS_TO_WAIT (15)
 
 
 LOCATION::LOCATION()
@@ -27,7 +28,6 @@ LOCATION::LOCATION()
 LOCATION::~LOCATION()
 {
   fprintf(locationFilePtr, "GPS no longer tracking location\n");
-  //fprintf(locationDataPtr, "GPS no longer tracking location\n");
   fclose(locationDataPtr);
 }
 
@@ -42,10 +42,8 @@ int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   fprintf(locationFilePtr, "New Location:\n");
   fprintf(locationFilePtr, "  %s, %f, %f\n", gpsData.currentTime.c_str(), gpsData.latitude, gpsData.longitude);
-  //std::cout<<timeStamp<<","<<latitude<<","<<longitude<<endl;  
   //save structure to a file
   assert((fwrite(dataToSave, sizeof(struct GPS_DATA), 1, locationDataPtr)) == true);
-  fprintf(locationDataPtr, "New Location:\n");
   return 0;
   
 }
@@ -75,6 +73,9 @@ LOCATION gps;
 
 void trackGPS() 
 {
+  time_t rawtime;  //for timestamp
+  struct tm * timeinfo; //for timestamp
+  
   gpsmm gps_rec("localhost", DEFAULT_GPSD_PORT);   //finds GPS, see what # the default port is
   
   if (gps_rec.stream(WATCH_ENABLE | WATCH_JSON) == NULL) // ENABLE turns off repording modes, JSON turns on JSON reporting data
@@ -86,7 +87,6 @@ void trackGPS()
   struct gps_data_t gpsd_data;  
   struct gps_data_t *dataPtr = &gpsd_data;
   double comp;
-  int fixCount;
   
   for (;;)  // change back while forever
   {
@@ -94,12 +94,11 @@ void trackGPS()
     while (((dataPtr= gps_rec.read()) == NULL) ||
              (dataPtr->fix.mode < MODE_2D)) 
     {
-        // Do nothing until fix
-        if(fixCount == 190000) //number to space out the printing
-        {
-          fprintf(locationFilePtr, "Not getting signal, stuck in loop trying to fix...\n");
-        }
-        fixCount++;
+      // Do nothing until fix
+      time(&rawtime);
+      timeinfo = localtime(&rawtime);   
+      fprintf(locationFilePtr, "Not getting signal at %s  trying again in %d seconds...\n", asctime(timeinfo), SECONDS_TO_WAIT);
+      sleep(SECONDS_TO_WAIT);
     }
 
 
@@ -115,12 +114,20 @@ void trackGPS()
     std::ostringstream oss;
     oss << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
     auto time_str { oss.str() };
+    
+    //add time comparison
 
     comp = gps.gpsComp(newLatitude, newLongitude);
     
     if (comp >= 3.0) 
     {     
       gps.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
+    }
+    else
+    {
+      time(&rawtime);
+      timeinfo = localtime(&rawtime);  
+      fprintf(locationFilePtr, "Got the same location at %s\n", asctime(timeinfo));
     }
      
     
@@ -141,7 +148,6 @@ void spoofGPS()
   struct gps_data_t gpsd_data;  
   struct gps_data_t *dataPtr = &gpsd_data;
   double comp;
-  int fixCount;
   
   for (;;)  // change back while forever
   {
@@ -220,12 +226,11 @@ void spoofGPS()
     while (((dataPtr= gps_rec.read()) == NULL) ||
              (dataPtr->fix.mode < MODE_2D)) 
     {
-       // Do nothing until fix
-       if(fixCount == 190000) //number to space out the printing
-       {
-         fprintf(locationFilePtr, "Not getting signal, stuck in loop trying to fix...\n");
-       }
-       fixCount++;
+      // Do nothing until fix
+      time(&rawtime);
+      timeinfo = localtime(&rawtime);   
+      fprintf(locationFilePtr, "Not getting signal at %s, trying again in %d seconds...\n", asctime(timeinfo), SECONDS_TO_WAIT);
+      sleep(SECONDS_TO_WAIT);
     }
 
     // log the gps binary data
