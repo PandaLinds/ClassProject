@@ -11,7 +11,7 @@
 #include <syslog.h> //for syslog
 #include <assert.h> //for asserts
 #include <cmath>  //for finding distances between coordinates
-
+#include <time.h> //for timestamp for waiting.
 #include <libgpsmm.h> // for GPS
 
 
@@ -43,7 +43,7 @@ class LOCATION
 
 static FILE *locationFilePtr= fopen("monitorLog.txt", "a");
 static FILE *locationDataPtr= fopen("locationData.txt", "a");
-//add a file to save GPS data
+//add a file to save GPS data done? ^^
 void trackGPS();
 void spoofGPS();
 
