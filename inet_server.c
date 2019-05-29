@@ -42,15 +42,15 @@ int main(int argc, char **argv)
     //exit(-1);
   //}
   
-  if((inet_aton(ipstr,&ip)) == 0)
-  {
-    fprintf(stderr, "Error: %s IP unknown.\n", ipstr);
-  }
+  //if((inet_aton(ipstr,&ip)) == 0)
+  //{
+    //fprintf(stderr, "Error: %s IP unknown.\n", ipstr);
+  //}
   
-  if((hp = gethostbyaddr((const void *)&ip, sizeof ip, AF_INET)) == NULL)
-  {
-    fprintf(stderr, "Error: %s host to IP unknown.\n", ipstr);
-  }
+  //if((hp = gethostbyaddr((const void *)&ip, sizeof ip, AF_INET)) == NULL)
+  //{
+    //fprintf(stderr, "Error: %s host to IP unknown.\n", ipstr);
+  //}
 
   
 
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     server_sockaddr.sin_port = htons(DEFAULT_PORT);
   else
     server_sockaddr.sin_port = htons((int)argv[1]);
-  bcopy (hp->h_addr, &server_sockaddr.sin_addr, hp->h_length);
+  //bcopy (hp->h_addr, &server_sockaddr.sin_addr, hp->h_length);   //uncomment
 
   /* Bind address to the socket */
   if (bind(server_sock, (struct sockaddr *) &server_sockaddr,
