@@ -130,13 +130,11 @@ void serveClients()
     recv(client_sock, (char *)&numSets, sizeof(int), 0);
     printf("number of sets = %d\n", numSets);
 
-//    while (1) 
-//    {
       /* Send test string to the client */
       send(client_sock, testStr, strlen(testStr), 0);
       syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
       for (j = 0; j < numSets; j++)
-      { printf("in forloop for numsets \n");//delete
+      { 
   
         /* Read client strings and print them out */
         while((c = fgetc(fp)) != EOF)
@@ -148,18 +146,14 @@ void serveClients()
             break;
         } /* end while */
         syslog(LOG_NOTICE, "%s", "Received message from client."); 
-        printf("message recieved\n");//delete
   
       } /* end for numSets */
-      printf("After the for numsets\n");//delete
       
-    
+      
       close(client_sock);
-      printf("i closed the socket\n"); //delete
       syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
       fclose(fp2);
-  
-//    } 
+
   } //end forever
 
 
