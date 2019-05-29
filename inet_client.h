@@ -13,11 +13,12 @@
 
 #define LOCAL_PORT 54321
 
-char *strs[2] = {
-	"Connection to client succesful.\n",
-	"34.54000, 112.46850.\n"
-};
+//char *strs[2] = {
+	//"Connection to client succesful.\n",
+	//"34.54000, 112.46850.\n"
+//};
 
+char *strs = "Wazzup!\n";
 
 	
 extern int errno;
