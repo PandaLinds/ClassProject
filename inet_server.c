@@ -12,14 +12,20 @@
 #include <strings.h>    /* For bzero()                   */
 #include <syslog.h>     /* For syslog()                  */
 #include <sys/socket.h> /* For socket()                  */
-#include <sys/types.h>  /* For socket()                  */
+#include <sys/types.h>  /* For socket() gethostbyaddr()  */
 #include <unistd.h>     /* For gethostname() and sleep() */
+
+
+#include <assert.h>     // for assert delete
+#include <arpa/inet.h>  // for inet_aton()
 
 #include "inet_server.h"
 
 int main(int argc, char **argv)
 {
   char hostname[64];
+  const char *ipstr = "127.0.0.1";
+  struct in_addr ip;
   struct hostent *hp;
   struct linger opt;
   int sockarg;
@@ -29,13 +35,24 @@ int main(int argc, char **argv)
   system("cat /var/log/syslog | grep R-PI-Server > myLog.txt");
   syslog(LOG_NOTICE, "%s", "Starting log...\n");
 
-  gethostname(hostname, sizeof(hostname));
-
-  if ((hp = (struct hostent*) gethostbyname(hostname)) == NULL)
+  //gethostname(hostname, sizeof(hostname));
+  //if ((hp = (struct hostent*) gethostbyname(hostname)) == NULL)
+  //{
+    //fprintf(stderr, "Error: %s host unknown.\n", hostname);
+    //exit(-1);
+  //}
+  
+  if((inet_aton(ipstr,&ip)) == 0)
   {
-    fprintf(stderr, "Error: %s host unknown.\n", hostname);
-    exit(-1);
+    fprintf(stderr, "Error: %s IP unknown.\n", ipstr);
   }
+  
+  if((hp = gethostbyaddr((const void *)&ip, sizeof ip, AF_INET)) == NULL)
+  {
+    fprintf(stderr, "Error: %s host to IP unknown.\n", ipstr);
+  }
+
+  
 
   if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -68,7 +85,7 @@ int main(int argc, char **argv)
 
   sockarg = 1;
  
-  setsockopt(server_sock, SOL_SOCKET, SO_LINGER, (char*) &opt, sizeof(opt));  //where is server/client_sock
+  setsockopt(server_sock, SOL_SOCKET, SO_LINGER, (char*) &opt, sizeof(opt)); 
   setsockopt(client_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&sockarg, sizeof(int));
   signal(SIGINT, sigHandler);
   signal(SIGPIPE, brokenPipeHandler);
@@ -113,15 +130,13 @@ void serveClients()
     recv(client_sock, (char *)&numSets, sizeof(int), 0);
     printf("number of sets = %d\n", numSets);
 
-    while (1) 
-    {
+//    while (1) 
+//    {
       /* Send test string to the client */
       send(client_sock, testStr, strlen(testStr), 0);
       syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
-  
-      
       for (j = 0; j < numSets; j++)
-      {
+      { printf("in forloop for numsets \n");//delete
   
         /* Read client strings and print them out */
         while((c = fgetc(fp)) != EOF)
@@ -133,15 +148,18 @@ void serveClients()
             break;
         } /* end while */
         syslog(LOG_NOTICE, "%s", "Received message from client."); 
-  
+        printf("message recieved\n");//delete
   
       } /* end for numSets */
+      printf("After the for numsets\n");//delete
+      
     
-      //close(client_sock);
-      //syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
-      //fclose(fp2);
+      close(client_sock);
+      printf("i closed the socket\n"); //delete
+      syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
+      fclose(fp2);
   
-    } 
+//    } 
   } //end forever
 
 
