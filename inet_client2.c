@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "inet_client.h"
+int client_sock;
 
 int main(argc, argv)
 int argc;
@@ -22,12 +23,12 @@ char **argv;
 {
   char c;
   FILE *fp;
-  int i, j, client_sock, len, num_sets;
+  int i, j, len, num_sets; //client_sock,
   struct hostent *hp;
   struct sockaddr_in client_sockaddr;
   struct linger opt;
   int sockarg;
-  //signal(SIGINT, sigHandler); //Need?
+  signal(SIGINT, sigHandler); //Need?
   //signal(SIGPIPE, broken_pipe_handler); //Need? defined later line 72
 
   if (argc < 2)
@@ -75,42 +76,27 @@ char **argv;
   
   num_sets = 1;
 
-  send(client_sock, (char *)&num_sets, sizeof(int), 0);
-//  while(1)
-//  {
+    send(client_sock, (char *)&num_sets, sizeof(int), 0);
     for (j = 0; j < num_sets; j++)
     {
-      
+      //printf("before the decoding of server message\n"); //delete
       /* Read the server string and print it out */
       while ((c = fgetc(fp)) != EOF)  //it blows up here!! it is not calling broken pipe handler after server closes
-      { 
+      {                         //printf("during the decoding of server message\n"); //delete
+          putchar(c);
+          
         if (c == '\n')
         {
           break;
         }
-        
-          putchar(c);
       }
-  
-      /* Send test string and then lat and long to the server */
-      //for (i = 0; i < 2; i++)
-      //{
-        //send(client_sock, strs[i], strlen(strs[i]), 0);
-      //}
       send(client_sock, strs, strlen(strs),0);
-      
-    }
-  
-//    sleep(5);
-//  }
   /* Listen for drones and alert the server when one is heard 
-  while (1) {
+  while (1) { }*/
 
-  }
-  */
+    }
 
   close(client_sock);
-  printf("close client socket\n");//delete
 
   exit(0);
 
@@ -118,10 +104,14 @@ char **argv;
 
 void sigHandler()
 {
-  printf("done with server\n");
+  printf("Closing client and socket\n");
+  close(client_sock);
+  exit(0);
 }
 
 void broken_pipe_handler()
 {
-  printf("\nbroken pipe signal received\n");
+  printf("\nbroken pipe signal received try reconnecting\n");
+  //add reconnecting code
+  exit(0);
 }
