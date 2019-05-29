@@ -88,7 +88,7 @@ void trackGPS()
   struct gps_data_t *dataPtr = &gpsd_data;
   double comp;
   
-  for (;;)  // change back while forever
+  for (;;)
   {
     
     while (((dataPtr= gps_rec.read()) == NULL) ||
