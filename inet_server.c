@@ -21,6 +21,8 @@
 
 #include "inet_server.h"
 
+#define SECONDS_TO_WAIT (15)
+
 int main(int argc, char **argv)
 {
   char hostname[64];
@@ -103,6 +105,8 @@ int main(int argc, char **argv)
 void serveClients()
 {
   FILE *fp2 = fopen("data.txt", "a");
+  char buff[500];
+  int returnCode;
   fprintf(fp2, "Initialization successful, beginning to serve clients...\n");
 
   for (;;)
@@ -129,34 +133,35 @@ void serveClients()
     
     recv(client_sock, (char *)&numSets, sizeof(int), 0);
     printf("number of sets = %d\n", numSets);
-
+    do
+    {
       /* Send test string to the client */
-      send(client_sock, testStr, strlen(testStr), 0);
+      returnCode = send(client_sock, testStr, strlen(testStr), 0);
       syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
       for (j = 0; j < numSets; j++)
       { 
-  
         /* Read client strings and print them out */
-        while((c = fgetc(fp)) != EOF)
+        while((c = fgetc(fp)) != EOF ) //&& returnCode>0) //ensure that code doesn't get stuck here
         {
           if (numSets < 4)
             putchar(c);
   
-          if (c == '\n')
+          if (c == '\n') //check if junk char as well
             break;
         } /* end while */
         syslog(LOG_NOTICE, "%s", "Received message from client."); 
-  
       } /* end for numSets */
+      sleep(SECONDS_TO_WAIT);
+    }while(returnCode >0); //check if socket is open
+  
       
+    close(client_sock);
+    syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
       
-      close(client_sock);
-      syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
-      fclose(fp2);
 
   } //end forever
 
-
+  fclose(fp2);
 }
 
 
