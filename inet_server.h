@@ -14,7 +14,7 @@
 #define DEFAULT_PORT 54321
 
 //char* testStr = "Connection to server successful.\n";
-char* testStr = "Wazzup!!!\n";
+char* testStr = "Wazzup!!! From Server\n";
 
 extern int errno;
 extern void sigHandler();
