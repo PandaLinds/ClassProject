@@ -15,6 +15,9 @@
 #include <unistd.h>
 
 #include "inet_client.h"
+
+#define SECONDS_TO_WAIT (15)
+
 int client_sock;
 
 int main(argc, argv)
@@ -75,7 +78,8 @@ char **argv;
   fp = fdopen(client_sock, "r");
   
   num_sets = 1;
-
+  for(;;)
+  {
     send(client_sock, (char *)&num_sets, sizeof(int), 0);
     for (j = 0; j < num_sets; j++)
     {
@@ -95,7 +99,8 @@ char **argv;
   while (1) { }*/
 
     }
-
+    sleep(SECONDS_TO_WAIT);
+  }
   close(client_sock);
 
   exit(0);
