@@ -18,7 +18,7 @@
 	//"34.54000, 112.46850.\n"
 //};
 
-char *strs = "Wazzup!\n";
+char *strs = "Wazzup! From Client\n";
 
 	
 extern int errno;
