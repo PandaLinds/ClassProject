@@ -6,18 +6,16 @@
 #include <libgpsmm.h> // for GPS
 
 
-
-//split initialization function?
-
 void signalHandler(int signum);
 
 int main(void)
 {
   //registering signal SIGINT and signal handler 
   signal(SIGINT, signalHandler);
+  
+  //comment out the function not needed for the test
   trackGPS();
   //spoofGPS();
-  cout<<"I made it this far"<<endl;
   
 }
 
