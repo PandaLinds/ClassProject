@@ -12,6 +12,7 @@
 #include <signal.h>     /* For sigHandler()              */
 
 #define LOCAL_PORT 54321
+#define SECONDS_TO_WAIT (15)
 
 //char *strs[2] = {
 	//"Connection to client succesful.\n",
