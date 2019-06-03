@@ -18,10 +18,10 @@
 
 using namespace std; //won't compile stings without this
 
-//add class to .h file when created to match style guide.
+//Class for localization
 class LOCATION
 {
-  private:
+  private:  //Struct is private so the data can't be manipulated. 
   struct GPS_DATA
   {
     //the lat/long data is in DBUS_TYPE_DOUBLE but will not compile.
@@ -32,7 +32,7 @@ class LOCATION
   GPS_DATA gpsData; 
   GPS_DATA *dataToSave = &gpsData;
   
-  public:
+  public:  //functions that can be used to save and compare data
   //funcitons LOCATION
   int saveGPSData(double, double, string);
   double gpsComp(double,double);
@@ -41,8 +41,8 @@ class LOCATION
   
 };
 
-static FILE *locationFilePtr= fopen("monitorLog.txt", "a");
-static FILE *locationDataPtr= fopen("locationData.txt", "a");
+static FILE *locationFilePtr= fopen("monitorLog.txt", "a");    //log file
+static FILE *locationDataPtr= fopen("locationData.txt", "a");  //save data
 //add a file to save GPS data done? ^^
 void trackGPS();
 void spoofGPS();
