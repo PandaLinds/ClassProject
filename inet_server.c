@@ -2,22 +2,9 @@
  * This module contains the code for the communication manager.
  */
 
-#include <ctype.h>      /* For tolower()                 */
-#include <netdb.h>      /* For gethostbyname()           */
-#include <netinet/in.h> /* For server_sockaddr           */
-#include <signal.h>     /* For sigHandler()              */
-#include <stdio.h>      /* For printf() and scanf()      */
-#include <stdlib.h>     /* For NULL                      */
-#include <string.h>     /* For strlen()                  */
-#include <strings.h>    /* For bzero()                   */
-#include <syslog.h>     /* For syslog()                  */
-#include <sys/socket.h> /* For socket()                  */
-#include <sys/types.h>  /* For socket() gethostbyaddr()  */
-#include <unistd.h>     /* For gethostname() and sleep() */
-
 
 #include <assert.h>     // for assert delete
-#include <arpa/inet.h>  // for inet_aton()
+#include <arpa/inet.h>  // for inet_aton() Delete?
 
 #include "inet_server.h"
 
