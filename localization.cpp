@@ -19,21 +19,23 @@
 #define SECONDS_TO_WAIT (15)
 
 
-LOCATION::LOCATION()
+LOCATION::LOCATION()   //defining constructor
 {
   gpsData.latitude = 0.0;
   gpsData.longitude = 0.0;
   gpsData.currentTime = " ";
 }
-LOCATION::~LOCATION()
+LOCATION::~LOCATION()   //defining destructor
 {
   fprintf(locationFilePtr, "GPS no longer tracking location\n");
   fclose(locationDataPtr);
 }
 
-int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
+
+
+//defining the save data function
+int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)  
 {
-  //add aserts to prove lat/long not 0 
   gpsData.latitude = GPSlat;
   gpsData.longitude = GPSlong;
   gpsData.currentTime = time;
@@ -51,6 +53,7 @@ int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
 //add a function that compares the time as well!
 
 
+//defining data comparison function
 double LOCATION::gpsComp(double lat, double lon)
 {
   //compare lat/longs in meters using the Hervsine method
@@ -70,7 +73,7 @@ double LOCATION::gpsComp(double lat, double lon)
 LOCATION gps;
 
 
-
+//define the function that recieves and checks data
 void trackGPS() 
 {
   time_t rawtime;  //for timestamp
@@ -134,6 +137,8 @@ void trackGPS()
   }
 }
 
+
+//this is a duplicate of trackGPS, but adds spoofing
 void spoofGPS()
 {
   fprintf(locationFilePtr, "I am now spoofing\n");
@@ -261,6 +266,8 @@ void spoofGPS()
   }
 }
 
+
+//defining the log function (needs work and not in use yet)
 int log(void) // have as a seperate thing in the Main?
 {
   FILE *logfile_ptr;
