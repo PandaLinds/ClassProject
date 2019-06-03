@@ -9,14 +9,10 @@
 //   We are allowing C++14 because that is the R-Pi's standard
 
 
-//look at http://www.infernodevelopment.com/c-log-file-class-forget-debuggers
-// for how to log
-
-//converting c++ string into string. Need to remember how to.
-
 #include "localization.hpp" 
 #define SPOOF (1)
 #define SECONDS_TO_WAIT (15)
+#define TOLERANCE (3.0)
 
 
 LOCATION::LOCATION()   //defining constructor
@@ -40,12 +36,12 @@ int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
   gpsData.longitude = GPSlong;
   gpsData.currentTime = time;
   // set decimal precision
-  std::cout.precision(6);
+  std::cout.precision(6);  //making sure that the floating points are no more than 6 decimal places
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   fprintf(locationFilePtr, "New Location:\n");
   fprintf(locationFilePtr, "  %s, %f, %f\n", gpsData.currentTime.c_str(), gpsData.latitude, gpsData.longitude);
   //save structure to a file
-  assert((fwrite(dataToSave, sizeof(struct GPS_DATA), 1, locationDataPtr)) == true);
+  assert((fwrite(dataToSave, sizeof(struct GPS_DATA), 1, locationDataPtr)) == true); //saving GPS_DATA structure to binary file
   return 0;
   
 }
@@ -87,17 +83,20 @@ void trackGPS()
     fprintf(locationFilePtr, "Can't get GPS to stream.\n");
   }
   
+  
+  //to save and use data from GPS
   struct gps_data_t gpsd_data;  
   struct gps_data_t *dataPtr = &gpsd_data;
+  //to check distance of compared distance of GPS locations
   double comp;
   
-  for (;;)
+  for (;;)  //loop forever
   {
     
     while (((dataPtr= gps_rec.read()) == NULL) ||
              (dataPtr->fix.mode < MODE_2D)) 
     {
-      // Do nothing until fix
+      // log and wait 15 seconds until fix
       time(&rawtime);
       timeinfo = localtime(&rawtime);   
       fprintf(locationFilePtr, "Not getting signal at %s  trying again in %d seconds...\n", asctime(timeinfo), SECONDS_TO_WAIT);
@@ -105,7 +104,7 @@ void trackGPS()
     }
 
 
-      
+    //get time and location 
     timestamp_t ts { dataPtr->fix.time };
     auto newLatitude  { dataPtr->fix.latitude };
     auto newLongitude { dataPtr->fix.longitude };
@@ -122,11 +121,12 @@ void trackGPS()
 
     comp = gps.gpsComp(newLatitude, newLongitude);
     
-    if (comp >= 3.0) 
+    //compare new location to last to see if out of tolerence 
+    if (comp >= TOLERANCE) 
     {     
       gps.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
     }
-    else
+    else  // this was used to test, delete?
     {
       time(&rawtime);
       timeinfo = localtime(&rawtime);  
@@ -134,7 +134,7 @@ void trackGPS()
     }
      
     
-  }
+  } //end loop forever
 }
 
 
@@ -154,9 +154,10 @@ void spoofGPS()
   struct gps_data_t *dataPtr = &gpsd_data;
   double comp;
   
-  for (;;)  // change back while forever
+  for (;;)  // loop forever
   {
     #ifdef SPOOF
+      //start of spoofing
       int spoofOption;
       float time, ept, lat, epy, lon, epx, alt, epv, track, epd;
       float speed, eps, climb, epc;
@@ -165,7 +166,7 @@ void spoofGPS()
       cout<<"Press 2 to enter all gpsd_data: ";
       cin>>spoofOption;
       if(spoofOption == 1)
-      {
+      {  //hard coded float numbers are not needed for option 1, only there so gpsd works
         cout<<"Enter the time: "; cin>>time;
         cout<<"Enter the latitude: "; cin>>lat;
         cout<<"Enter the longitute: "; cin>>lon;
@@ -227,22 +228,25 @@ void spoofGPS()
       {
         cout<<"Please try again"<<endl;
       }
+      //end of spoofing
     #else
-    while (((dataPtr= gps_rec.read()) == NULL) ||
-             (dataPtr->fix.mode < MODE_2D)) 
-    {
-      // Do nothing until fix
-      time(&rawtime);
-      timeinfo = localtime(&rawtime);   
-      fprintf(locationFilePtr, "Not getting signal at %s, trying again in %d seconds...\n", asctime(timeinfo), SECONDS_TO_WAIT);
-      sleep(SECONDS_TO_WAIT);
-    }
-
-    // log the gps binary data
-    assert((fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr)) == true);
-      
+      //start of regular tracking
+      while (((dataPtr= gps_rec.read()) == NULL) ||
+               (dataPtr->fix.mode < MODE_2D)) 
+      {
+        //log and wait 15 seconds until fix
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);   
+        fprintf(locationFilePtr, "Not getting signal at %s, trying again in %d seconds...\n", asctime(timeinfo), SECONDS_TO_WAIT);
+        sleep(SECONDS_TO_WAIT);
+      }
+  
+      // log the gps binary data
+      assert((fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr)) == true);
+      //end of regular tracking
     #endif
-      
+    
+    //get time and location from GPS
     timestamp_t ts { dataPtr->fix.time };
     auto newLatitude  { dataPtr->fix.latitude };
     auto newLongitude { dataPtr->fix.longitude };
@@ -257,13 +261,14 @@ void spoofGPS()
 
     comp = gps.gpsComp(newLatitude, newLongitude);
     
-    if (comp >= 3.0) 
+    //compare new location to last to see if out of tolerence 
+    if (comp >= TOLERANCE) 
     {     
       gps.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
     }
      
     
-  }
+  } // end loop forever
 }
 
 
