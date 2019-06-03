@@ -2,21 +2,9 @@
  * This is the module for the client.
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <strings.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "inet_client.h"
 
-#define SECONDS_TO_WAIT (15)
+
 
 int client_sock;
 
