@@ -8,12 +8,11 @@
 
 #include "inet_server.h"
 
-#define SECONDS_TO_WAIT (15)
 
 int main(int argc, char **argv)
 {
   char hostname[64];
-  const char *ipstr = "127.0.0.1";
+  const char *ipstr = "192.168.0.10";
   struct in_addr ip;
   struct hostent *hp;
   struct linger opt;
@@ -22,26 +21,7 @@ int main(int argc, char **argv)
   openlog("R-PI-Server", LOG_CONS | LOG_PID, LOG_USER);
   /* Log to myLog.txt instead of /var/log/syslog */
   system("cat /var/log/syslog | grep R-PI-Server > myLog.txt");
-  syslog(LOG_NOTICE, "%s", "Starting log...\n");
-
-  //gethostname(hostname, sizeof(hostname));
-  //if ((hp = (struct hostent*) gethostbyname(hostname)) == NULL)
-  //{
-    //fprintf(stderr, "Error: %s host unknown.\n", hostname);
-    //exit(-1);
-  //}
-  
-  //if((inet_aton(ipstr,&ip)) == 0)
-  //{
-    //fprintf(stderr, "Error: %s IP unknown.\n", ipstr);
-  //}
-  
-  //if((hp = gethostbyaddr((const void *)&ip, sizeof ip, AF_INET)) == NULL)
-  //{
-    //fprintf(stderr, "Error: %s host to IP unknown.\n", ipstr);
-  //}
-
-  
+  syslog(LOG_NOTICE, "%s", "Starting log...\n");  
 
   if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -53,10 +33,13 @@ int main(int argc, char **argv)
   server_sockaddr.sin_family = AF_INET;
   /* Connect to the default port if none is given, otherwise use the value passed in */
   if (argc < 2)
+  {
     server_sockaddr.sin_port = htons(DEFAULT_PORT);
+  }
   else
+  {
     server_sockaddr.sin_port = htons((int)argv[1]);
-  //bcopy (hp->h_addr, &server_sockaddr.sin_addr, hp->h_length);   //uncomment
+  }
 
   /* Bind address to the socket */
   if (bind(server_sock, (struct sockaddr *) &server_sockaddr,
@@ -92,10 +75,12 @@ int main(int argc, char **argv)
 void serveClients()
 {
   FILE *fp2 = fopen("data.txt", "a");
-  char buff[500];
-  int returnCode;
+  char buff[MAX_CHAR];
+  int returnCode, arrayElem = 0;
   fprintf(fp2, "Initialization successful, beginning to serve clients...\n");
-
+  
+  
+  //from here
   for (;;)
   {
 
@@ -116,30 +101,40 @@ void serveClients()
     }
     fp = fdopen(client_sock, "r");
     syslog(LOG_NOTICE, "%s", "Accepted new client connection.\n");
-    
+    //to here, put in different function, then make new process serve 
     
     recv(client_sock, (char *)&numSets, sizeof(int), 0);
     printf("number of sets = %d\n", numSets);
-    do
+    for(;;)
     {
+      arrayElem = 0;
       /* Send test string to the client */
       returnCode = send(client_sock, testStr, strlen(testStr), 0);
       syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
       for (j = 0; j < numSets; j++)
       { 
         /* Read client strings and print them out */
-        while((c = fgetc(fp)) != EOF ) //&& returnCode>0) //ensure that code doesn't get stuck here
+        while((c = fgetc(fp)) != EOF ) 
         {
+          
           if (numSets < 4)
+          {
             putchar(c);
-  
-          if (c == '\n') //check if junk char as well
+            buff[arrayElem++] = c;
+          }
+          if (c == '\n') 
+          {
             break;
+          }
         } /* end while */
         syslog(LOG_NOTICE, "%s", "Received message from client."); 
       } /* end for numSets */
       sleep(SECONDS_TO_WAIT);
-    }while(returnCode >0); //check if socket is open
+      if(strncmp("exit", buff, 4) == 0)
+      {
+        break;
+      }
+    }
   
       
     close(client_sock);
@@ -164,6 +159,7 @@ void sigHandler()
   if (ch == 'y')
   {
     printf("\nSockets are being closed\n");
+    send(client_sock, lastStr, strlen(lastStr), 0);
     close(client_sock);
     syslog(LOG_NOTICE, "%s", "Sockets closed...\n");
     printf("Would you like to shut down the server?\n");
