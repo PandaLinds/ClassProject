@@ -98,6 +98,7 @@ char **argv;
 void sigHandler()
 {
   printf("Closing client and socket\n");
+  send(client_sock, lastStr, strlen(lastStr), 0);
   close(client_sock);
   exit(0);
 }
