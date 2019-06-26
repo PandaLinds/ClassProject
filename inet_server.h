@@ -12,9 +12,12 @@
 #include <unistd.h>     /* For gethostname() and sleep() */
 
 #define DEFAULT_PORT 54321
+#define SECONDS_TO_WAIT (5)
+#define MAX_CHAR (80)
 
 //char* testStr = "Connection to server successful.\n";
 char* testStr = "Wazzup!!! From Server\n";
+char* lastStr = "\n";
 
 extern int errno;
 extern void sigHandler();
