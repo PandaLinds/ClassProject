@@ -12,14 +12,11 @@
 #include <signal.h>     /* For sigHandler()              */
 
 #define LOCAL_PORT 54321
-#define SECONDS_TO_WAIT (15)
+#define SECONDS_TO_WAIT (5)
+#define MAX_CHAR (80)
 
-//char *strs[2] = {
-	//"Connection to client succesful.\n",
-	//"34.54000, 112.46850.\n"
-//};
-
-char *strs = "Wazzup! From Client\n";
+char *strs = "exit\n";
+char *lastStr = "\n";
 
 	
 extern int errno;
