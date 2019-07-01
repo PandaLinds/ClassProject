@@ -12,7 +12,7 @@
 int main(int argc, char **argv)
 {
   char hostname[64];
-  const char *ipstr = "192.168.0.10";
+  const char *ipstr = "172.19.35.120";
   struct in_addr ip;
   struct hostent *hp;
   struct linger opt;
@@ -136,7 +136,7 @@ void serveClients()
       }
     }
   
-      
+    send(client_sock, lastStr, strlen(lastStr), 0);
     close(client_sock);
     syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
       
