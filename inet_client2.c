@@ -20,7 +20,8 @@ char **argv;
   struct linger opt;
   int sockarg;
   ssize_t n_read;
-  char incomingBuff[200];
+  char incomingBuff[INCOMING_MESSAGE_MAX];
+  FILE *fp2 = fopen("data.txt", "a"); //write results to here?
   signal(SIGINT, sigHandler); //Need?
   //signal(SIGPIPE, broken_pipe_handler); //Need? 
 
@@ -73,21 +74,15 @@ char **argv;
     send(client_sock, (char *)&num_sets, sizeof(int), 0);
     for (j = 0; j < num_sets; j++)
     {
-      //printf("before the decoding of server message\n"); //delete
-      /* Read the server string and print it out */
-      //while ((c = fgetc(fp)) != EOF && read(client_sock,)  //it blows up here!! it is not calling broken pipe handler after server closes
-      while((n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff))) >0)
-      {                         //printf("during the decoding of server message\n"); //delete
-          //putchar(c);
-          
-        //if (c == '\n')
-        //{
-          //break;
-        //}
-        
-        printf("recieved something");
+      //write message to a file. Make a second file for binary file?
+      n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff));
+      printf("----n_read is %zu \n", (size_t) n_read);
+      if(n_read >0)
+      {
+        fprintf(fp2, incomingBuff);
+        send(client_sock, strs, strlen(strs),0);
+        memset(incomingBuff,0,sizeof(incomingBuff));
       }
-      send(client_sock, strs, strlen(strs),0);
   /* Listen for drones and alert the server when one is heard 
   while (1) { }*/
 
