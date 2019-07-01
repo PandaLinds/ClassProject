@@ -113,20 +113,29 @@ void serveClients()
       syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
       for (j = 0; j < numSets; j++)
       { 
-        /* Read client strings and print them out */
-        while((c = fgetc(fp)) != EOF ) 
-        {
+        ///* Read client strings and print them out */
+        //while((c = fgetc(fp)) != EOF ) 
+        //{
           
-          if (numSets < 4)
-          {
-            putchar(c);
-            buff[arrayElem++] = c;
-          }
-          if (c == '\n') 
-          {
-            break;
-          }
-        } /* end while */
+          //if (numSets < 4)
+          //{
+            //putchar(c);
+            //buff[arrayElem++] = c;
+          //}
+          //if (c == '\n') 
+          //{
+            //break;
+          //}
+        //} /* end while */
+        //write message to a file. Make a second file for binary file?
+        n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff));
+        printf("----n_read is %zu \n", (size_t) n_read);
+        if(n_read >0)
+        {
+          fprintf(fp2, incomingBuff);
+          send(client_sock, strs, strlen(strs),0);
+          memset(incomingBuff,0,sizeof(incomingBuff));
+        }
         syslog(LOG_NOTICE, "%s", "Received message from client."); 
       } /* end for numSets */
       sleep(SECONDS_TO_WAIT);
