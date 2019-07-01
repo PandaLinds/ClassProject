@@ -19,8 +19,10 @@ char **argv;
   struct sockaddr_in client_sockaddr;
   struct linger opt;
   int sockarg;
+  ssize_t n_read;
+  char incomingBuff[200];
   signal(SIGINT, sigHandler); //Need?
-  //signal(SIGPIPE, broken_pipe_handler); //Need? defined later line 72
+  //signal(SIGPIPE, broken_pipe_handler); //Need? 
 
   if (argc < 2)
   {
@@ -73,14 +75,17 @@ char **argv;
     {
       //printf("before the decoding of server message\n"); //delete
       /* Read the server string and print it out */
-      while ((c = fgetc(fp)) != EOF)  //it blows up here!! it is not calling broken pipe handler after server closes
+      //while ((c = fgetc(fp)) != EOF && read(client_sock,)  //it blows up here!! it is not calling broken pipe handler after server closes
+      while((n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff))) >0)
       {                         //printf("during the decoding of server message\n"); //delete
-          putchar(c);
+          //putchar(c);
           
-        if (c == '\n')
-        {
-          break;
-        }
+        //if (c == '\n')
+        //{
+          //break;
+        //}
+        
+        printf("recieved something");
       }
       send(client_sock, strs, strlen(strs),0);
   /* Listen for drones and alert the server when one is heard 
