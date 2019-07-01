@@ -8,6 +8,8 @@
 
 #include "inet_server.h"
 
+#define INCOMING_BUFF_MAX 200
+
 
 int main(int argc, char **argv)
 {
@@ -17,6 +19,7 @@ int main(int argc, char **argv)
   struct hostent *hp;
   struct linger opt;
   int sockarg;
+  
 
   openlog("R-PI-Server", LOG_CONS | LOG_PID, LOG_USER);
   /* Log to myLog.txt instead of /var/log/syslog */
@@ -77,6 +80,8 @@ void serveClients()
   FILE *fp2 = fopen("data.txt", "a");
   char buff[MAX_CHAR];
   int returnCode, arrayElem = 0;
+  char incomingBuff[INCOMING_BUFF_MAX];
+  ssize_t n_read;
   fprintf(fp2, "Initialization successful, beginning to serve clients...\n");
   
   
@@ -133,7 +138,6 @@ void serveClients()
         if(n_read >0)
         {
           fprintf(fp2, incomingBuff);
-          send(client_sock, strs, strlen(strs),0);
           memset(incomingBuff,0,sizeof(incomingBuff));
         }
         syslog(LOG_NOTICE, "%s", "Received message from client."); 
