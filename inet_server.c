@@ -8,7 +8,7 @@
 
 #include "inet_server.h"
 
-#define INCOMING_BUFF_MAX 200
+#define INCOMING_BUFF_MAX 75
 
 
 int main(int argc, char **argv)
@@ -78,8 +78,6 @@ int main(int argc, char **argv)
 void serveClients()
 {
   FILE *fp2 = fopen("data.txt", "a");
-  char buff[MAX_CHAR];
-  int returnCode, arrayElem = 0;
   char incomingBuff[INCOMING_BUFF_MAX];
   ssize_t n_read;
   fprintf(fp2, "Initialization successful, beginning to serve clients...\n");
@@ -112,41 +110,27 @@ void serveClients()
     printf("number of sets = %d\n", numSets);
     for(;;)
     {
-      arrayElem = 0;
+      memset(incomingBuff,0,sizeof(incomingBuff));
       /* Send test string to the client */
-      returnCode = send(client_sock, testStr, strlen(testStr), 0);
+      send(client_sock, testStr, strlen(testStr), 0);
       syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
       for (j = 0; j < numSets; j++)
       { 
-        ///* Read client strings and print them out */
-        //while((c = fgetc(fp)) != EOF ) 
-        //{
-          
-          //if (numSets < 4)
-          //{
-            //putchar(c);
-            //buff[arrayElem++] = c;
-          //}
-          //if (c == '\n') 
-          //{
-            //break;
-          //}
-        //} /* end while */
         //write message to a file. Make a second file for binary file?
         n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff));
-        printf("----n_read is %zu \n", (size_t) n_read);
-        if(n_read >0)
+        if(n_read > 0)
         {
           fprintf(fp2, incomingBuff);
-          memset(incomingBuff,0,sizeof(incomingBuff));
+          printf("Server saved message\n");
         }
         syslog(LOG_NOTICE, "%s", "Received message from client."); 
-      } /* end for numSets */
-      sleep(SECONDS_TO_WAIT);
-      if(strncmp("exit", buff, 4) == 0)
+      } /* end for numSets for loop*/
+      
+      if(strncmp("exit", incomingBuff, 4) == 0)
       {
         break;
       }
+      sleep(SECONDS_TO_WAIT);
     }
   
     send(client_sock, lastStr, strlen(lastStr), 0);
