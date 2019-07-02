@@ -16,8 +16,8 @@
 #define MAX_CHAR (80)
 
 //char* testStr = "Connection to server successful.\n";
-char* testStr = "Wazzup!!! From Server\n";
-char* lastStr = "\n";
+char* testStr = "Message from Server\n";
+char* lastStr = "exit\n";
 
 extern int errno;
 extern void sigHandler();
