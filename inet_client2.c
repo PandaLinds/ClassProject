@@ -69,23 +69,27 @@ char **argv;
   fp = fdopen(client_sock, "r");
   
   num_sets = 1;
+  send(client_sock, (char *)&num_sets, sizeof(int), 0);
   for(;;)
   {
-    send(client_sock, (char *)&num_sets, sizeof(int), 0);
+    send(client_sock, strs, strlen(strs),0);
+    memset(incomingBuff,0,sizeof(incomingBuff));
     for (j = 0; j < num_sets; j++)
     {
       //write message to a file. Make a second file for binary file?
       n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff));
-      printf("----n_read is %zu \n", (size_t) n_read);
       if(n_read >0)
       {
         fprintf(fp2, incomingBuff);
-        send(client_sock, strs, strlen(strs),0);
-        memset(incomingBuff,0,sizeof(incomingBuff));
+        printf("Client saved message\n");
       }
   /* Listen for drones and alert the server when one is heard 
   while (1) { }*/
 
+    }
+    if(strncmp("exit", incomingBuff, 4) == 0)
+    {
+      break;
     }
     sleep(SECONDS_TO_WAIT);
   }
