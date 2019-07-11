@@ -90,7 +90,7 @@ void trackGPS()
   //to check distance of compared distance of GPS locations
   double comp;
   
-  for (;;)  //loop forever
+  for (int i=0; i<15; i++)  //loop forever
   {
     
     while (((dataPtr= gps_rec.read()) == NULL) ||
