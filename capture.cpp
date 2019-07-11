@@ -1,16 +1,10 @@
 /*
  *
  *  Example by Sam Siewert 
- *
+ *  Edited by Alexandra Lindsey
+ * 
  */
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include "capture.hpp"
 
 using namespace cv;
 using namespace std;
@@ -33,7 +27,7 @@ IplImage* difframe2;
 IplImage* difframe2_gray;
 IplImage* difframe2_bw;
 
-int main( int argc, char** argv )
+int detect()
 {
     IplImage* frame;
 
@@ -127,6 +121,12 @@ int main( int argc, char** argv )
 
     cvReleaseCapture(&capture2);
     cvDestroyWindow("Capture Example 2");
+    
+    cout<<"Done Detecting"<<endl;
+    
+    fprintf(motionFilePtr, "Camera no longer detecing motion\n");
+    fclose(motionDataPtr);
+    exit(0);
     
 };
 
