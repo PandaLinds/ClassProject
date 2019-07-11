@@ -3,16 +3,16 @@ LIB_DIRS =
 CC=g++
 
 CDEFS=
-CFLAGS= `pkg-config --cflags --libs libgps`
-GPSFLAGS = `pkg-config --cflags --libs libgps`
+CFLAGS= `pkg-config --cflags --libs libgps --libs opencv`
 LDFLAGS = -L /usr/lib/
-LIBS = -lm 
+LIBS = -lm -lrt
+CPPLIBS= -L/usr/lib -lopencv_core -lopencv_flann -lopencv_video
 MONLIBS = -pthread
 
 TARGET=monitor
 
-HFILES= localization.hpp map.hpp acousticEm.hpp
-CFILES= localization.cpp map.cpp acousticEm.cpp monitor.cpp
+HFILES= localization.hpp capture.hpp
+CFILES= localization.cpp capture.cpp monitor.cpp
 
 SRCS= ${HFILES} ${CFILES}
 OBJS= ${CFILES:.cpp=.o}
@@ -24,7 +24,7 @@ clean:
 	-rm -f ${TARGET} ${DERIVED} ${GARBAGE}
 
 ${TARGET}:	${OBJS}
-	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(MONLIBS)
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(CPPLIBS) $(MONLIBS)
 
 depend:
 
