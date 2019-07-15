@@ -9,13 +9,13 @@ LIBS = -lm -lrt
 CPPLIBS= -L/usr/lib -lopencv_core -lopencv_flann -lopencv_video
 MONLIBS = -pthread
 
-TARGET=monitor
+TARGET=placeHolder
 
-HFILES= localization.hpp capture.hpp
-CFILES= localization.cpp capture.cpp monitor.cpp
+HFILES= localization.hpp map.hpp capture.hpp inet_client.hpp
+CPPFILES= localization.cpp map.cpp capture.cpp placeHolder.cpp inet_client2.cpp
 
 SRCS= ${HFILES} ${CFILES}
-OBJS= ${CFILES:.cpp=.o}
+OBJS= ${CPPFILES:.cpp=.o} 
 
 all:	${TARGET}
 
