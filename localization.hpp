@@ -14,9 +14,15 @@
 #include <time.h> //for timestamp for waiting.
 #include <libgpsmm.h> // for GPS
 
+#define GOOD 0
+#define BAD (-1)
+#define WAIT_TOLERANCE 100
+#define CHANGE_SAVED 2
 
 
 using namespace std; //won't compile stings without this
+
+
 
 //Class for localization
 class LOCATION
@@ -34,6 +40,9 @@ class LOCATION
   
   public:  //functions that can be used to save and compare data
   //funcitons LOCATION
+  int enableGPS();
+  int findSignal();
+  int checkGPSData();
   int saveGPSData(double, double, string);
   double gpsComp(double,double);
   LOCATION();
