@@ -6,16 +6,7 @@
  */
 #include "capture.hpp"
 
-using namespace cv;
 using namespace std;
-
-//#define HRES 640
-//#define VRES 480
-
-#define DHRES 640
-#define DVRES 480
-
-#define ESC_KEY 27
 
 char snapshotfile[]  = "save1/snapshot00000.jpg";
 char framesavefile[] = "save1/frame00000000.jpg";
@@ -27,11 +18,11 @@ IplImage* difframe2;
 IplImage* difframe2_gray;
 IplImage* difframe2_bw;
 
-int detect()
+int MotionDetect()
 {
     IplImage* frame;
 
-    cvNamedWindow("Capture Example 2", CV_WINDOW_AUTOSIZE);
+    cvNamedWindow("Motion Detect", CV_WINDOW_AUTOSIZE);
     CvCapture* capture2 = cvCreateCameraCapture(0);
     IplImage* frame2;
     IplImage* prevframe2;
@@ -72,7 +63,7 @@ int detect()
         threshold(mat_difframe2_gray, mat_difframe2_bw, 10, 1, CV_THRESH_BINARY);
         diffSum = (sum(mat_difframe2_bw)[0]);
 
-        cvShowImage("Capture Example 2", frame);
+        cvShowImage("Motion Detect", frame);
         
         //printf("diffSum=%lf, motioncnt=%d\n", diffSum, motioncnt);
 
@@ -120,19 +111,13 @@ int detect()
     }
 
     cvReleaseCapture(&capture2);
-    cvDestroyWindow("Capture Example 2");
-    
-    cout<<"Done Detecting"<<endl;
+    cvDestroyWindow("Motion Detect");
     
     fprintf(motionFilePtr, "Camera no longer detecing motion\n");
     fclose(motionDataPtr);
     exit(0);
     
 };
-
-
-
-
 
 
 
