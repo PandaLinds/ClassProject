@@ -14,7 +14,7 @@
 int main(int argc, char **argv)
 {
   char hostname[64];
-  const char *ipstr = "172.19.35.120";
+  const char *ipstr = "192.168.0.4";
   struct in_addr ip;
   struct hostent *hp;
   struct linger opt;
@@ -95,7 +95,7 @@ void serveClients()
     }
 
     /* Accept connections */
-    if ((client_sock = accept(server_sock, 
+    if ((client_sock = accept(server_sock,   //change socket? 
         (struct sockaddr *)&client_sockaddr,
                               &fromlen)) < 0) 
     {
