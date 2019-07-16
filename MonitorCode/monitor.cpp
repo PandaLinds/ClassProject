@@ -10,17 +10,24 @@
 #include <unistd.h>
 #include <thread>
 
+#define MOTION_WAIT 3
+
 
 
 using namespace std;  //needed for use of string
 
 void signalHandler(int signum);
 void updateMap();
+int clientInit();
+
+FILE *fp2 = fopen("data.txt", "a"); //write results to here?
 
 void GPSthread(void)
 {
+  ssize_t SendRC;
   int returnCode;
   LOCATION MonitorLocation;
+  char *lstrs = "Location Changed\n";
   
   if (MonitorLocation.enableGPS() < 0)
   {
@@ -35,12 +42,22 @@ void GPSthread(void)
     {
       //send data
       //log data
+      if ((SendRC=send(client_sock, lstrs, strlen(lstrs),0)) <= 0)
+      {
+        cout<<"Message not sent"<<endl;
+        if (SendRC == 0)
+        {
+          cout<<"Server not there"<<endl;
+        }
+      }
     }
   }
 }
 
 void motionthread(void)
 {
+  char *mstrs = "Motion Detected\n";
+  ssize_t SendRC;
   
   char snapshotfile[]  = "save1/snapshot00000.jpg";
   char framesavefile[] = "save1/frame00000000.jpg";
@@ -99,46 +116,63 @@ void motionthread(void)
       //printf("diffSum=%lf, motioncnt=%d\n", diffSum, motioncnt);
 
       char c = cvWaitKey(33);
-      if( c == ESC_KEY ) break;
-      
+      if( c == ESC_KEY ) 
+      {
+        fprintf(motionFilePtr, "Escape\n");
+        break;
+      }
       if( c == 'p') 
       {
-    // on "p" key press
-          cnt++;
-          
-          printf("snapshot %05d taken as %s\n", cnt, snapshotfile2);
-          sprintf(&snapshotfile2[8], "%05d.jpg", cnt);
-          imwrite(framesavefile2, cvarrToMat(frame2));
+        // on "p" key press
+        cnt++;
+        
+        fprintf(motionFilePtr, "Snapshot, frame %08d saved as %s\n", motioncnt, framesavefile2);
+        printf("snapshot %05d taken as %s\n", cnt, snapshotfile2);
+        sprintf(&snapshotfile2[8], "%05d.jpg", cnt);
+        imwrite(framesavefile2, cvarrToMat(frame2));
       }
       
       if( c == 's') 
       {
-          // on "s" key press
-          savingdata++;
-          
-          printf("frame %08d saved as %s\n", savingdata, framesavefile2);
-          sprintf(&framesavefile2[8], "%08d.png", savingdata);
-          imwrite(framesavefile2, cvarrToMat(frame2));
+        // on "s" key press
+        savingdata++;
+        
+        fprintf(motionFilePtr, "Hard save, frame %08d saved as %s\n", motioncnt, framesavefile2);
+        //printf("frame %08d saved as %s\n", savingdata, framesavefile2);
+        sprintf(&framesavefile2[8], "%08d.png", savingdata);
+        imwrite(framesavefile2, cvarrToMat(frame2));
       }
       
       if((motioncnt && (diffSum > 800)) || (c == 'm') ) 
       {
-          // on "m" key press
-          motioncnt++;
+        // on "m" key press
+        motioncnt++;
 
-
-          printf("frame %08d saved as %s\n", motioncnt, framesavefile2);
-          sprintf(&framesavefile2[8], "%08d.png", motioncnt);
-          imwrite(framesavefile2, cvarrToMat(frame2));
+        fprintf(motionFilePtr, "Motion Detected, frame %08d saved as %s\n", motioncnt, framesavefile2);
+        //printf("frame %08d saved as %s\n", motioncnt, framesavefile2);
+        sprintf(&framesavefile2[8], "%08d.png", motioncnt);
+        imwrite(framesavefile2, cvarrToMat(frame2));
+        //send data
+        //log data
+        if ((SendRC=send(client_sock, mstrs, strlen(mstrs),0)) <= 0)
+        {
+          cout<<"Message not sent"<<endl;
+          if (SendRC == 0)
+          {
+            cout<<"Server not there"<<endl;
+          }
+        }
       }
              
       if( c == 'q' && (savingdata || motioncnt)) 
       {
-          savingdata=0;
-          motioncnt=0;
+        fprintf(motionFilePtr, "Reset\n");
+        savingdata=0;
+        motioncnt=1;
       }
       
       cvCopy(frame2, prevframe2);
+      sleep(MOTION_WAIT);
   }
 
   cvReleaseCapture(&capture2);
@@ -150,7 +184,7 @@ void motionthread(void)
 }
 
 
-int client_sock; //for clinetthread
+
 void clientthread(void)
 {
   char c;
@@ -162,8 +196,85 @@ void clientthread(void)
   int sockarg;
   ssize_t n_read;
   char incomingBuff[INCOMING_MESSAGE_MAX];
-  string hostName;
-  FILE *fp2 = fopen("data.txt", "a"); //write results to here?
+  string hostName = "192.168.0.4";
+
+  fp = fdopen(client_sock, "r");
+  
+  num_sets = 1;
+  send(client_sock, (char *)&num_sets, sizeof(int), 0);
+  for(;;)
+  {
+    send(client_sock, strs, strlen(strs),0);
+    memset(incomingBuff,0,sizeof(incomingBuff));
+    for (j = 0; j < num_sets; j++)
+    {
+      //write message to a file. Make a second file for binary file?
+      n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff));
+      if(n_read >0)
+      {
+        fprintf(fp2, incomingBuff);
+        printf("Client saved message\n");
+      }
+  /* Listen for drones and alert the server when one is heard 
+  while (1) { }*/
+
+    }
+    if(strncmp("exit", incomingBuff, 4) == 0)
+    {
+      break;
+    }
+    sleep(SECONDS_TO_WAIT);
+  }
+  close(client_sock);
+  
+  return((void)GOOD);
+}
+
+
+int main()
+{
+	double testLat, testLong;
+  string testID;
+  //pthread_t GPS, motion;
+  //registering signal SIGINT and signal handler 
+  signal(SIGINT, signalHandler);
+  
+  clientInit();
+  
+  thread GPS(GPSthread);
+  thread motion(motionthread);
+  thread client(clientthread);
+  
+  client.join();
+  motion.join();
+  GPS.join();
+  fclose(locationFilePtr);
+  fclose(motionFilePtr);
+  fclose(fp2);
+  
+}
+
+void updateMap ()
+{
+  // when GPS saved to file, pull out and update;
+}
+
+
+
+
+int clientInit()
+{
+  char c;
+  FILE *fp;
+  int i, j, len, num_sets; //client_sock,
+  struct hostent *hp;
+  struct sockaddr_in client_sockaddr;
+  struct linger opt;
+  int sockarg;
+  ssize_t n_read;
+  char incomingBuff[INCOMING_MESSAGE_MAX];
+  string hostName = "192.168.0.4";
+  
   //signal(SIGINT, sigHandler); //Need?
   //signal(SIGPIPE, broken_pipe_handler); //Need? 
 
@@ -174,8 +285,8 @@ void clientthread(void)
   //}
   
   
-  cout<<"Enter the host IP: "<<endl;
-  cin>>hostName;
+  //cout<<"Enter the host IP: "<<endl;
+  //cin>>hostName;
   if ((hp = gethostbyname(hostName.c_str())) == NULL)    //change to addr?
   {
     fprintf(stderr, "Error: %s unknown host.\n", hostName.c_str());
@@ -210,63 +321,13 @@ void clientthread(void)
   }
 
   //signal(SIGPIPE, broken_pipe_handler);
-
-  fp = fdopen(client_sock, "r");
-  
-  num_sets = 1;
-  send(client_sock, (char *)&num_sets, sizeof(int), 0);
-  for(;;)
-  {
-    send(client_sock, strs, strlen(strs),0);
-    memset(incomingBuff,0,sizeof(incomingBuff));
-    for (j = 0; j < num_sets; j++)
-    {
-      //write message to a file. Make a second file for binary file?
-      n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff));
-      if(n_read >0)
-      {
-        fprintf(fp2, incomingBuff);
-        printf("Client saved message\n");
-      }
-  /* Listen for drones and alert the server when one is heard 
-  while (1) { }*/
-
-    }
-    if(strncmp("exit", incomingBuff, 4) == 0)
-    {
-      break;
-    }
-    sleep(SECONDS_TO_WAIT);
-  }
-  close(client_sock);
-  
-  return((void)GOOD);
+  return(GOOD);
 }
 
-int main()
-{
-	double testLat, testLong;
-  string testID;
-  //pthread_t GPS, motion;
-  //registering signal SIGINT and signal handler 
-  signal(SIGINT, signalHandler);
-  
-  thread GPS(GPSthread);
-  thread motion(motionthread);
-  thread client(clientthread);
-  
-  client.join();
-  motion.join();
-  GPS.join();
-  fclose(locationFilePtr);
-  fclose(motionFilePtr);
-  
-}
 
-void updateMap ()
-{
-  // when GPS saved to file, pull out and update;
-}
+
+
+
 
 //destroying class and exiting after ^c
 void signalHandler(int signum)
@@ -274,5 +335,6 @@ void signalHandler(int signum)
   cout<<"Interupt signal \""<<signum<<"\" recieved"<<endl;
   fclose(locationFilePtr);
   fclose(motionFilePtr);
+  fclose(fp2);
   exit(signum);
 }
