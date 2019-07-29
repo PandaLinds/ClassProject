@@ -8,7 +8,8 @@
 
 int client_sock;
 
-int main(int argc,char** argv)
+//int main(int argc,char** argv)
+int client()
 {
   char c;
   FILE *fp;
@@ -23,17 +24,17 @@ int main(int argc,char** argv)
   //signal(SIGINT, sigHandler); //Need?
   //signal(SIGPIPE, broken_pipe_handler); //Need? 
 
-  if (argc < 2)
-  {
-    printf("Usage: inet_client <server hostname>\n");
-    exit(-1);
-  }
+  //if (argc < 2)
+  //{
+    //printf("Usage: inet_client <server hostname>\n");
+    //exit(-1);
+  //}
 
-  if ((hp = gethostbyname(argv[1])) == NULL)    //change to addr?
-  {
-    fprintf(stderr, "Error: %s unknown host.\n", argv[1]);
-    exit(-1);
-  }
+  //if ((hp = gethostbyname(argv[1])) == NULL)    
+  //{
+    //fprintf(stderr, "Error: %s unknown host.\n", argv[1]);
+    //exit(-1);
+  //}
 
   if ((client_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
