@@ -34,24 +34,19 @@ void GPSthread(void)
   
   if (MonitorLocation.enableGPS() < 0)
   {
-    cout<<"GPS not found"<<endl;
+    fprintf(fp2, "GPS not fount\n");
     return((void)BAD);
   }
   for(int i = 0; i < 5; i++)
   {
     MonitorLocation.findSignal();
-    returnCode = MonitorLocation.checkGPSData();
-    if (returnCode == CHANGE_SAVED)
+    if (MonitorLocation.checkGPSData() == CHANGE_SAVED)
     {
       //send data
       //log data
       if ((SendRC=send(client_sock, lstrs, strlen(lstrs),0)) <= 0)
       {
-        cout<<"Message not sent"<<endl;
-        if (SendRC == 0)
-        {
-          cout<<"Server not there"<<endl;
-        }
+        fprintf(fp2, "GPS Message not sent\n");
       }
     }
   }
@@ -142,18 +137,16 @@ void motionthread(void)
         savingdata++;
         
         fprintf(motionFilePtr, "Hard save, frame %08d saved as %s\n", motioncnt, framesavefile2);
-        //printf("frame %08d saved as %s\n", savingdata, framesavefile2);
         sprintf(&framesavefile2[8], "%08d.png", savingdata);
         imwrite(framesavefile2, cvarrToMat(frame2));
       }
       
-      if((motioncnt && (diffSum > 800)) || (c == 'm') ) 
+      if((motioncnt && (diffSum > 1500)) || (c == 'm') ) //translate magic number 
       {
         // on "m" key press
         motioncnt++;
 
         fprintf(motionFilePtr, "Motion Detected, frame %08d saved as %s\n", motioncnt, framesavefile2);
-        //printf("frame %08d saved as %s\n", motioncnt, framesavefile2);
         sprintf(&framesavefile2[8], "%08d.png", motioncnt);
         imwrite(framesavefile2, cvarrToMat(frame2));
         //send data
@@ -176,7 +169,7 @@ void motionthread(void)
       }
       
       cvCopy(frame2, prevframe2);
-      sleep(MOTION_WAIT);
+      //sleep(MOTION_WAIT);
   }
 
   cvReleaseCapture(&capture2);
@@ -277,7 +270,7 @@ int clientInit()
   int sockarg;
   ssize_t n_read;
   char incomingBuff[INCOMING_MESSAGE_MAX];
-  string hostName = "192.168.0.4";
+  string hostName = "172.19.35.120";
   
   //signal(SIGINT, sigHandler); //Need?
   //signal(SIGPIPE, broken_pipe_handler); //Need? 
