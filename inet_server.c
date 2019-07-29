@@ -10,7 +10,7 @@
 
 #define INCOMING_BUFF_MAX 75
 
-
+FILE *fp2;
 
 int main(int argc, char **argv)
 {
@@ -20,7 +20,6 @@ int main(int argc, char **argv)
   struct hostent *hp;
   struct linger opt;
   int sockarg;
-  
 
   openlog("R-PI-Server", LOG_CONS | LOG_PID, LOG_USER);
   /* Log to myLog.txt instead of /var/log/syslog */
@@ -77,11 +76,9 @@ int main(int argc, char **argv)
 /* Listen and accept loop function */
 void serveClients()
 {
-  FILE *fp2 = fopen("data.txt", "a");
   char incomingBuff[INCOMING_BUFF_MAX];
   ssize_t nBytes;
   int index, index2;
-  char inputChar = 'c';
   
   FD_ZERO(&master);
   FD_SET(server_sock, &master);
@@ -94,8 +91,9 @@ void serveClients()
   }
   //enter select here
   
-  for(index2 = 0; index2 < 100; index2++)
+  for(;;)
   {
+    fp2 = fopen("serverMessages.txt", "a");
     masterCopy = master;
     if( select(FD_SETSIZE, &masterCopy, NULL, NULL, NULL) < 0)
     {
@@ -103,7 +101,7 @@ void serveClients()
       exit(-1);
     }
     
-    for(index = 0; index < FD_SETSIZE; index++) //connects 2 then other takes over?
+    for(index = 0; index < FD_SETSIZE; index++) 
     {
       if(FD_ISSET(index, &masterCopy))
       {
@@ -128,7 +126,6 @@ void serveClients()
           {
             fprintf(fp2, incomingBuff);
             printf("Server saved message\n");
-            //printf("Client says: %s", incomingBuff);  //delete
             if(strncmp("exit", incomingBuff, 4) == 0)
             {
               send(index, lastStr, strlen(lastStr),0);
@@ -150,7 +147,9 @@ void serveClients()
         }
       }
     }
+    fclose(fp2);
   }
+  struct timeval tv = {5,0};
   masterCopy = master;
   if( select(FD_SETSIZE, &masterCopy, NULL, NULL, NULL) < 0)
   {
@@ -174,118 +173,10 @@ void serveClients()
 /* Close sockets after a Ctrl-C signal */
 void sigHandler()
 {
-  //printf("in handler\n"); //Delete
-  //int index, selectRC;
-  //printf("int\n"); //Delete
-  //masterCopy = master;
-  //printf("masterCopy\n"); //Delete
-  //fclose(fp2); //move to bottom
-  //printf("fclose\n");  //delete   stopping here for some reason
-  //selectRC = select(FD_SETSIZE, &masterCopy, NULL, NULL, NULL);
-  //printf("selectRC = %d\n", selectRC);
-  //if (selectRC == 1)
-  //{
-    //close(server_sock);
-    //FD_CLR(server_sock, &master);
-  //}
-  //else if(selectRC < 0)
-  //{
-    //perror("Server: Select");
-    //printf("Select Bad\n");  //delete
-    //exit(-1);
-  //}
-  //else if(selectRC > 0)
-  //{
-    //for(index = 0; index < FD_SETSIZE; index++)
-    //{
-      //printf("in for loop\n");  //delete
-      //if(FD_ISSET(index, &masterCopy))
-      //{
-        //close(index);
-        //FD_CLR(index, &master);
-        //printf("Closing socket %d\n", index);
-      //}
-    //}
-  //}
-  //else
-  //{
-    //printf("nothing in FD_SET");
-  //}
-  //printf("Select\n");  //delete
-  //FD_ZERO(&master);
-  //printf("exiting\n");
-  
-  exit(0);
-  
-  
-  
-  
-  
-  //char ch;
-  //syslog(LOG_NOTICE, "%s", "Ctrl-C interrupt\n");
-
-  //printf("\nEnter y to close sockets or n to keep open: ");
-  //scanf(" %c", &ch);
-  //ch = tolower(ch);
-  //if (ch == 'y')
-  //{
-    //printf("\nSockets are being closed\n");
-    //send(client_sock, lastStr, strlen(lastStr), 0);
-    //close(client_sock);
-    //syslog(LOG_NOTICE, "%s", "Sockets closed...\n");
-    //printf("Would you like to shut down the server?\n");
-    //scanf(" %c", &ch);
-    //ch = tolower(ch);
-    //if (ch == 'y')
-    //{
-      //close(server_sock);
-      //syslog(LOG_NOTICE, "%s", "Server shutting down...\n");
-      //printf("Shutting down ...\n");
-      //exit(0);
-    //}
-
-    //else if (ch == 'n')
-    //{
-      //printf("Would you like to resume serving clients?\n");
-      //scanf(" %c", &ch);
-      //ch = tolower(ch);
-      //if (ch == 'y')
-      //{
-        //syslog(LOG_NOTICE, "%s", "Resuming serving clients...\n");
-        //printf("Resuming...\n");
-        //serveClients();
-      //}
-
-      //else
-      //{
-        //printf("Not continuing...\n");
-      //}
-    //}
-
-    //else
-    //{
-      //printf("\nInvalid input, not continuing...\n");
-    //}
-  //}
-
-  //else if (ch == 'n')
-  //{
-    //syslog(LOG_NOTICE, "%s", "Resuming...\n");
-  //}
-
-  //else
-  //{
-    //syslog(LOG_NOTICE, "%s", "Resuming...\n");
-    //printf("\nInvalid input, resuming by default...\n");
-  //}
-}
-
-/* Handle broken connections with a client */
-void brokenPipeHandler()
-{
   int index;
+  struct timeval tv = {2,0};
   masterCopy = master;
-  if( select(FD_SETSIZE, &masterCopy, NULL, NULL, NULL) < 0)
+  if( select(FD_SETSIZE, &masterCopy, NULL, NULL, &tv) < 0)
   {
     perror("Server: Select");
     exit(-1);
@@ -300,36 +191,35 @@ void brokenPipeHandler()
     }
   }
   FD_ZERO(&master);
-  
-  
-  
-  
-  //char ch;
-  //syslog(LOG_NOTICE, "%s", "Broken pipe\n");
+  close(server_sock);
+  fclose(fp2);
+  exit(0);
+}
 
-  //printf("Enter y to continue serving clients or n to halt:");
-  //scanf(" %c", &ch);
-  //ch = tolower(ch);
-
-  //if (ch == 'y')
-  //{
-    //syslog(LOG_NOTICE, "%s", "Resuming...\n");
-    //printf("\nWill continue serving clients\n");
-    //serveClients();
-  //}
-
-  //else if (ch == 'n')
-  //{
-    //syslog(LOG_NOTICE, "%s", "Server shutting down...\n");
-    //printf("Shutting down ...\n");
-    //exit(0);
-  //}
-
-  //else
-  //{
-    //syslog(LOG_NOTICE, "%s", "Resuming...\n");
-    //printf("\nInvalid input, resuming by default...\n");
-  //}
+/* Handle broken connections with a client */
+void brokenPipeHandler()
+{
+  int index;
+  struct timeval tv = {2,0};
+  masterCopy = master;
+  if( select(FD_SETSIZE, &masterCopy, NULL, NULL, &tv) < 0)
+  {
+    perror("Server: Select");
+    exit(-1);
+  }
+  for(index = 0; index < FD_SETSIZE; index++)
+  {
+    if(FD_ISSET(index, &masterCopy))
+    {
+      close(index);
+      FD_CLR(index, &master);
+      printf("Closing socket %d\n", index);
+    }
+  }
+  FD_ZERO(&master);
+  close(server_sock);
+  fclose(fp2);
+  exit(0);
 }
 
 // Display log file data
