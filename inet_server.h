@@ -7,6 +7,8 @@
 #include <string.h>     /* For strlen()                  */
 #include <strings.h>    /* For bzero()                   */
 #include <syslog.h>     /* For syslog()                  */
+#include <sys/select.h> /* for select                    */
+#include <sys/time.h>   /* for select                    */
 #include <sys/socket.h> /* For socket()                  */
 #include <sys/types.h>  /* For socket()                  */
 #include <unistd.h>     /* For gethostname() and sleep() */
@@ -15,7 +17,7 @@
 #define SECONDS_TO_WAIT (5)
 #define MAX_CHAR (80)
 
-//char* testStr = "Connection to server successful.\n";
+char* welcomeStr = "Welcome to the Wireless Sensor Network\n";
 char* testStr = "Message from Server\n";
 char* lastStr = "exit\n";
 
@@ -25,9 +27,10 @@ extern void brokenPipeHandler();
 extern void serveClients();
 void viewSysLogs();
 
-
-static int server_sock, client_sock;
+static fd_set master, masterCopy;
+static int server_sock;
 static int fromlen, i, j, numSets;
 static char c;
 static FILE *fp;
 static struct sockaddr_in server_sockaddr, client_sockaddr;
+static FILE *fp2;
