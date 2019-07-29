@@ -11,6 +11,7 @@
 #define INCOMING_BUFF_MAX 75
 
 
+
 int main(int argc, char **argv)
 {
   char hostname[64];
@@ -61,7 +62,6 @@ int main(int argc, char **argv)
   sockarg = 1;
  
   setsockopt(server_sock, SOL_SOCKET, SO_LINGER, (char*) &opt, sizeof(opt)); 
-  setsockopt(client_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&sockarg, sizeof(int));
   signal(SIGINT, sigHandler);
   signal(SIGPIPE, brokenPipeHandler);
 
@@ -79,67 +79,94 @@ void serveClients()
 {
   FILE *fp2 = fopen("data.txt", "a");
   char incomingBuff[INCOMING_BUFF_MAX];
-  ssize_t n_read;
-  fprintf(fp2, "Initialization successful, beginning to serve clients...\n");
+  ssize_t nBytes;
+  int index, index2;
+  char inputChar = 'c';
   
-  
-  //from here
-  for (;;)
+  FD_ZERO(&master);
+  FD_SET(server_sock, &master);
+
+  /* Listen on the socket */
+  if (listen(server_sock, 5) < 0)
   {
-
-    /* Listen on the socket */
-    if (listen(server_sock, 5) < 0)
-    {
-      perror("Server: listen");
-      exit(-1);
-    }
-
-    /* Accept connections */
-    if ((client_sock = accept(server_sock,   //change socket? 
-        (struct sockaddr *)&client_sockaddr,
-                              &fromlen)) < 0) 
-    {
-      perror("Server: accept");
-      exit(-1);
-    }
-    fp = fdopen(client_sock, "r");
-    syslog(LOG_NOTICE, "%s", "Accepted new client connection.\n");
-    //to here, put in different function, then make new process serve 
-    
-    recv(client_sock, (char *)&numSets, sizeof(int), 0);
-    printf("number of sets = %d\n", numSets);
-    for(;;)
-    {
-      memset(incomingBuff,0,sizeof(incomingBuff));
-      /* Send test string to the client */
-      send(client_sock, testStr, strlen(testStr), 0);
-      syslog(LOG_NOTICE, "%s", "Sent test string to client.\n");
-      for (j = 0; j < numSets; j++)
-      { 
-        //write message to a file. Make a second file for binary file?
-        n_read = read(client_sock, &incomingBuff, sizeof(incomingBuff));
-        if(n_read > 0)
-        {
-          fprintf(fp2, incomingBuff);
-          printf("Server saved message\n");
-        }
-        syslog(LOG_NOTICE, "%s", "Received message from client."); 
-      } /* end for numSets for loop*/
-      
-      if(strncmp("exit", incomingBuff, 4) == 0)
-      {
-        break;
-      }
-      sleep(SECONDS_TO_WAIT);
-    }
+    perror("Server: listen");
+    exit(-1);
+  }
+  //enter select here
   
-    send(client_sock, lastStr, strlen(lastStr), 0);
-    close(client_sock);
-    syslog(LOG_NOTICE, "%s", "Closed client sock...\n");
-      
-
-  } //end forever
-
+  for(index2 = 0; index2 < 100; index2++)
+  {
+    masterCopy = master;
+    if( select(FD_SETSIZE, &masterCopy, NULL, NULL, NULL) < 0)
+    {
+      perror("Server: Select");
+      exit(-1);
+    }
+    
+    for(index = 0; index < FD_SETSIZE; index++) //connects 2 then other takes over?
+    {
+      if(FD_ISSET(index, &masterCopy))
+      {
+        if(index == server_sock)
+        {
+          int client_sock;
+          /* Accept connections */
+          if ((client_sock = accept(server_sock, (struct sockaddr *)&client_sockaddr, &fromlen)) < 0) 
+          {
+            perror("Server: accept");
+            exit(-1);
+          }
+          printf("\n\nNew connection!! %d\n\n", client_sock);
+          FD_SET(client_sock, &master);
+          send(client_sock, welcomeStr, strlen(welcomeStr),0);
+        }
+        else
+        {
+          memset(incomingBuff,0,sizeof(incomingBuff));
+          nBytes = read(index, &incomingBuff, sizeof(incomingBuff));
+          if(nBytes > 0)
+          {
+            fprintf(fp2, incomingBuff);
+            printf("Server saved message\n");
+            //printf("Client says: %s", incomingBuff);  //delete
+            if(strncmp("exit", incomingBuff, 4) == 0)
+            {
+              send(index, lastStr, strlen(lastStr),0);
+              printf("Closing socket %d\n", index);
+              FD_CLR(index, &master);
+              break;
+            }
+            else
+            {
+              send(index, testStr, strlen(testStr),0);
+            }
+          }
+          else
+          {
+            printf("Closing socket %d\n", index);
+            FD_CLR(index, &master);
+          }
+            
+        }
+      }
+    }
+  }
+  masterCopy = master;
+  if( select(FD_SETSIZE, &masterCopy, NULL, NULL, NULL) < 0)
+  {
+    perror("Server: Select");
+    exit(-1);
+  }
+  for(index = 0; index < FD_SETSIZE; index++)
+  {
+    if(FD_ISSET(index, &masterCopy))
+    {
+      close(index);
+      FD_CLR(index, &master);
+      printf("Closing socket %d\n", index);
+    }
+  }
+  FD_ZERO(&master);
   fclose(fp2);
 }
 
@@ -147,94 +174,162 @@ void serveClients()
 /* Close sockets after a Ctrl-C signal */
 void sigHandler()
 {
-  char ch;
-  syslog(LOG_NOTICE, "%s", "Ctrl-C interrupt\n");
+  //printf("in handler\n"); //Delete
+  //int index, selectRC;
+  //printf("int\n"); //Delete
+  //masterCopy = master;
+  //printf("masterCopy\n"); //Delete
+  //fclose(fp2); //move to bottom
+  //printf("fclose\n");  //delete   stopping here for some reason
+  //selectRC = select(FD_SETSIZE, &masterCopy, NULL, NULL, NULL);
+  //printf("selectRC = %d\n", selectRC);
+  //if (selectRC == 1)
+  //{
+    //close(server_sock);
+    //FD_CLR(server_sock, &master);
+  //}
+  //else if(selectRC < 0)
+  //{
+    //perror("Server: Select");
+    //printf("Select Bad\n");  //delete
+    //exit(-1);
+  //}
+  //else if(selectRC > 0)
+  //{
+    //for(index = 0; index < FD_SETSIZE; index++)
+    //{
+      //printf("in for loop\n");  //delete
+      //if(FD_ISSET(index, &masterCopy))
+      //{
+        //close(index);
+        //FD_CLR(index, &master);
+        //printf("Closing socket %d\n", index);
+      //}
+    //}
+  //}
+  //else
+  //{
+    //printf("nothing in FD_SET");
+  //}
+  //printf("Select\n");  //delete
+  //FD_ZERO(&master);
+  //printf("exiting\n");
+  
+  exit(0);
+  
+  
+  
+  
+  
+  //char ch;
+  //syslog(LOG_NOTICE, "%s", "Ctrl-C interrupt\n");
 
-  printf("\nEnter y to close sockets or n to keep open: ");
-  scanf(" %c", &ch);
-  ch = tolower(ch);
-  if (ch == 'y')
-  {
-    printf("\nSockets are being closed\n");
-    send(client_sock, lastStr, strlen(lastStr), 0);
-    close(client_sock);
-    syslog(LOG_NOTICE, "%s", "Sockets closed...\n");
-    printf("Would you like to shut down the server?\n");
-    scanf(" %c", &ch);
-    ch = tolower(ch);
-    if (ch == 'y')
-    {
-      close(server_sock);
-      syslog(LOG_NOTICE, "%s", "Server shutting down...\n");
-      printf("Shutting down ...\n");
-      exit(0);
-    }
+  //printf("\nEnter y to close sockets or n to keep open: ");
+  //scanf(" %c", &ch);
+  //ch = tolower(ch);
+  //if (ch == 'y')
+  //{
+    //printf("\nSockets are being closed\n");
+    //send(client_sock, lastStr, strlen(lastStr), 0);
+    //close(client_sock);
+    //syslog(LOG_NOTICE, "%s", "Sockets closed...\n");
+    //printf("Would you like to shut down the server?\n");
+    //scanf(" %c", &ch);
+    //ch = tolower(ch);
+    //if (ch == 'y')
+    //{
+      //close(server_sock);
+      //syslog(LOG_NOTICE, "%s", "Server shutting down...\n");
+      //printf("Shutting down ...\n");
+      //exit(0);
+    //}
 
-    else if (ch == 'n')
-    {
-      printf("Would you like to resume serving clients?\n");
-      scanf(" %c", &ch);
-      ch = tolower(ch);
-      if (ch == 'y')
-      {
-        syslog(LOG_NOTICE, "%s", "Resuming serving clients...\n");
-        printf("Resuming...\n");
-        serveClients();
-      }
+    //else if (ch == 'n')
+    //{
+      //printf("Would you like to resume serving clients?\n");
+      //scanf(" %c", &ch);
+      //ch = tolower(ch);
+      //if (ch == 'y')
+      //{
+        //syslog(LOG_NOTICE, "%s", "Resuming serving clients...\n");
+        //printf("Resuming...\n");
+        //serveClients();
+      //}
 
-      else
-      {
-        printf("Not continuing...\n");
-      }
-    }
+      //else
+      //{
+        //printf("Not continuing...\n");
+      //}
+    //}
 
-    else
-    {
-      printf("\nInvalid input, not continuing...\n");
-    }
-  }
+    //else
+    //{
+      //printf("\nInvalid input, not continuing...\n");
+    //}
+  //}
 
-  else if (ch == 'n')
-  {
-    syslog(LOG_NOTICE, "%s", "Resuming...\n");
-  }
+  //else if (ch == 'n')
+  //{
+    //syslog(LOG_NOTICE, "%s", "Resuming...\n");
+  //}
 
-  else
-  {
-    syslog(LOG_NOTICE, "%s", "Resuming...\n");
-    printf("\nInvalid input, resuming by default...\n");
-  }
+  //else
+  //{
+    //syslog(LOG_NOTICE, "%s", "Resuming...\n");
+    //printf("\nInvalid input, resuming by default...\n");
+  //}
 }
 
 /* Handle broken connections with a client */
 void brokenPipeHandler()
 {
-  char ch;
-  syslog(LOG_NOTICE, "%s", "Broken pipe\n");
-
-  printf("Enter y to continue serving clients or n to halt:");
-  scanf(" %c", &ch);
-  ch = tolower(ch);
-
-  if (ch == 'y')
+  int index;
+  masterCopy = master;
+  if( select(FD_SETSIZE, &masterCopy, NULL, NULL, NULL) < 0)
   {
-    syslog(LOG_NOTICE, "%s", "Resuming...\n");
-    printf("\nWill continue serving clients\n");
-    serveClients();
+    perror("Server: Select");
+    exit(-1);
   }
-
-  else if (ch == 'n')
+  for(index = 0; index < FD_SETSIZE; index++)
   {
-    syslog(LOG_NOTICE, "%s", "Server shutting down...\n");
-    printf("Shutting down ...\n");
-    exit(0);
+    if(FD_ISSET(index, &masterCopy))
+    {
+      close(index);
+      FD_CLR(index, &master);
+      printf("Closing socket %d\n", index);
+    }
   }
+  FD_ZERO(&master);
+  
+  
+  
+  
+  //char ch;
+  //syslog(LOG_NOTICE, "%s", "Broken pipe\n");
 
-  else
-  {
-    syslog(LOG_NOTICE, "%s", "Resuming...\n");
-    printf("\nInvalid input, resuming by default...\n");
-  }
+  //printf("Enter y to continue serving clients or n to halt:");
+  //scanf(" %c", &ch);
+  //ch = tolower(ch);
+
+  //if (ch == 'y')
+  //{
+    //syslog(LOG_NOTICE, "%s", "Resuming...\n");
+    //printf("\nWill continue serving clients\n");
+    //serveClients();
+  //}
+
+  //else if (ch == 'n')
+  //{
+    //syslog(LOG_NOTICE, "%s", "Server shutting down...\n");
+    //printf("Shutting down ...\n");
+    //exit(0);
+  //}
+
+  //else
+  //{
+    //syslog(LOG_NOTICE, "%s", "Resuming...\n");
+    //printf("\nInvalid input, resuming by default...\n");
+  //}
 }
 
 // Display log file data
