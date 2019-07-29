@@ -9,9 +9,12 @@
 //#include <pthread.h>
 #include <unistd.h>
 #include <thread>
+#include <time.h>
 
 #define MOTION_WAIT 3
 
+
+//add time stamp to motion
 
 
 using namespace std;  //needed for use of string
@@ -56,6 +59,7 @@ void GPSthread(void)
 
 void motionthread(void)
 {
+  //time(&rawtime);
   char *mstrs = "Motion Detected\n";
   ssize_t SendRC;
   
