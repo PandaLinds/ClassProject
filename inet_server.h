@@ -33,4 +33,4 @@ static int fromlen, i, j, numSets;
 static char c;
 static FILE *fp;
 static struct sockaddr_in server_sockaddr, client_sockaddr;
-static FILE *fp2;
+
