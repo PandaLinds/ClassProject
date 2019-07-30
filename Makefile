@@ -12,7 +12,7 @@ MONLIBS = -pthread
 TARGET=placeHolder
 
 HFILES= localization.hpp map.hpp capture.hpp inet_client.hpp
-CPPFILES= localization.cpp map.cpp capture.cpp placeHolder.cpp inet_client2.cpp
+CPPFILES= localization.cpp map.cpp capture.cpp detectMotion.cpp inet_client2.cpp placeHolder.cpp
 
 SRCS= ${HFILES} ${CFILES}
 OBJS= ${CPPFILES:.cpp=.o} 
