@@ -16,9 +16,10 @@
 #define MAX_CHAR (80)
 #define INCOMING_MESSAGE_MAX 75
 
-char message[120];
-char *strs = "From client 172.19.35.120\n";
-char *lastStr = "exit\n";
+static char message[120];
+static char *strs = "From client 172.19.35.120\n";
+static char *lastStr = "exit\n";
+static int client_sock;
 
 	
 extern int errno;

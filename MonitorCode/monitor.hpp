@@ -17,11 +17,11 @@
 
 
 #define LOCAL_PORT 54321
-#define SECONDS_TO_WAIT (5)
+#define SECONDS_TO_WAIT (30)
 #define MAX_CHAR (80)
 #define INCOMING_MESSAGE_MAX 75
 
-char *strs = "From client 172.19.35.120\n";
+char *strs = "Heartbeat\n";
 char *lastStr = "exit\n";
 int client_sock; //for clinetthread
 

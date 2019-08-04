@@ -6,7 +6,7 @@
 
 
 
-int client_sock;
+
 
 //int main(int argc,char** argv)
 int client()
