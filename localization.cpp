@@ -45,10 +45,10 @@ int LOCATION::saveGPSData(double GPSlat, double GPSlong, string time)
   // set decimal precision
   std::cout.precision(6);  //making sure that the floating points are no more than 6 decimal places
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
-  fprintf(locationFilePtr, "New Location:\n");
-  fprintf(locationFilePtr, "  %s, %f, %f\n", gpsData.currentTime.c_str(), gpsData.latitude, gpsData.longitude);
+  fprintf(locationFilePtr, "New Location:  %s, %f, %f\n", gpsData.currentTime.c_str(), gpsData.latitude, gpsData.longitude);
+  fprintf(locationDataPtr, "New Location:  %s, %f, %f\n", gpsData.currentTime.c_str(), gpsData.latitude, gpsData.longitude);
   //save structure to a file
-  assert((fwrite(dataToSave, sizeof(struct GPS_DATA), 1, locationDataPtr)) == true); //saving GPS_DATA structure to binary file
+  //assert((fwrite(dataToSave, sizeof(struct GPS_DATA), 1, locationDataPtr)) == true); //saving GPS_DATA structure to binary file use in future?
   return 0;
   
 }
@@ -140,6 +140,13 @@ int LOCATION::checkGPSData()
   }
   
   return(GOOD);
+}
+
+string LOCATION::currentLoc()  //finish this!
+{
+  ostringstream CurrentLoc;
+  CurrentLoc<<"Lat: "<<gpsData.latitude<<", Long: "<<gpsData.longitude<<", time: "<<gpsData.currentTime;
+  return CurrentLoc.str();
 }
 
 

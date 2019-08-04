@@ -32,11 +32,11 @@ MAP::~MAP()
   head = tail = NULL;
 }
 
-void MAP::addNode (double newLat, double newLong, string newID)
+// make it accept strings instead 
+void MAP::addNode (string newLoc, string newID)
 {
   NODE *tmp = new NODE;
-  tmp->monitor.latitude = newLat;
-  tmp->monitor.longitude = newLong;
+  tmp->monitor.location = newLoc;
   tmp->monitor.monitorID = newID;
   tmp->next = NULL;
   
@@ -62,8 +62,8 @@ void MAP::printMap()
   while(copyMap != NULL)
   {
     fprintf(mapFilePtr, "New map point:\n");
-    fprintf(mapFilePtr, "  %s, %f, %f\n", copyMap->monitor.monitorID, copyMap->monitor.latitude, copyMap->monitor.latitude);
-    cout<<"Monitor ID: "<<copyMap->monitor.monitorID<<", Latitude: "<<copyMap->monitor.latitude<<", Longitude: "<<copyMap->monitor.latitude<<endl;
+    fprintf(mapFilePtr, "  %s, %s\n", copyMap->monitor.monitorID, copyMap->monitor.location);
+    cout<<"Monitor ID: "<<copyMap->monitor.monitorID<<", Location and Time: "<<copyMap->monitor.location<<endl;
     copyMap = copyMap->next;
   }
 }

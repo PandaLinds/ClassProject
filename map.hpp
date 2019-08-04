@@ -14,8 +14,7 @@ struct NODE
 {
   struct MONITOR_DATA
   {
-    double latitude;
-    double longitude;
+    string location;
     string monitorID;
   };
   MONITOR_DATA monitor;
@@ -32,12 +31,12 @@ class MAP
   
   MAP();    
   ~MAP();
-  void addNode (double newLat, double newLong, string newID);
+  void addNode (string newLoc, string newID);
   int checkID(string ID);
   void printMap();
 };
 
-static FILE *mapFilePtr= fopen("monitorLog.txt", "a");
+static FILE *mapFilePtr= fopen("comManLog.txt", "a");
 
 
 #endif

@@ -44,6 +44,7 @@ class LOCATION
   int findSignal();
   int checkGPSData();
   int saveGPSData(double, double, string);
+  string currentLoc();
   double gpsComp(double,double);
   LOCATION();
   ~LOCATION();
