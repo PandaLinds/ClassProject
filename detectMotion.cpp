@@ -11,53 +11,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "detectMotion.hpp"
+
 using namespace std;
 using namespace cv;
 
-#define WINDOW_NAME "Motion Detector"
 
-#define DEVICE_ID 0
-
-//#define SHOW_DIFF
-
-#define DELAY_IN_MSEC (15)
-
-#define DETECT_DIRECTORY ("/mnt/data/detect/")
-#define COLLECT_DIRECTORY ("/mnt/data/collect/")
-
-#define COLLECT_EVERY_NTH_FRAME 30
-
-#define FILE_FORMAT ("%d%h%Y_%H%M%S") // 1Jan1970/1Jan1970_12153
-#define EXTENSION (".png") // extension of the images
-
-#define MAX_THRESHOLD 255
-#define MAX_DEVIATION 255 // Maximum allowable deviation of a pixel to count as "changed"
-
-#ifdef LOW_RES_DETECTION
-int currentThreshold = 5;
-int currentDeviation = 3;
-int currentMotionTrigger = 10;
-#else
-//int currentThreshold = 15;
-//int currentDeviation = 9;
-//int currentMotionTrigger = 30;
-int currentThreshold = 10;
-int currentDeviation = 5;
-int currentMotionTrigger = 20;
-#endif
-
-#define CAM_WIDTH_OFFSET 0
-
-#define ESC_KEY 27
-
-bool running = true;
-
-typedef struct {
-  bool isMotion;
-  Scalar mean;
-  Scalar stddev;
-  int numberOfChanges;
-} MotionDetectData_t;
 
 
 // Check if the directory exists, if not create it
@@ -147,7 +106,8 @@ inline MotionDetectData_t detectMotion(const Mat &motion,
 }
 
 
-int main (int argc, char * const argv[]) 
+int detect (int argc, char * const argv[]) 
+//int main(int argc, char * const argv[])
 {
   // Drawing variables for writing to the window
   stringstream drawnStringStream;
@@ -168,6 +128,7 @@ int main (int argc, char * const argv[])
   unsigned int frameCnt = 0;
   VideoCapture capture_interface;
   int no_capture_cnt=0;
+  char userInput;
 
 
   // Erode kernel
@@ -350,7 +311,11 @@ int main (int argc, char * const argv[])
     
     imshow(WINDOW_NAME, display);
     frameCnt++;
-    cvWaitKey (DELAY_IN_MSEC);
+    userInput = (char)cvWaitKey(DELAY_IN_MSEC);
+    if(userInput == ESC_KEY)
+    {
+      break;
+    }
   }
   
   capture_interface.release();
