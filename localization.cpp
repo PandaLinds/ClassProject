@@ -74,7 +74,6 @@ double LOCATION::gpsComp(double lat, double lon)
 
 int LOCATION::enableGPS()
 {
-  cout<<"Enabling"<<endl; //delete
   if (gps_rec.stream(WATCH_ENABLE | WATCH_JSON) == NULL) // ENABLE turns off repording modes, JSON turns on JSON reporting data
   {
     //std::cerr << "No GPSD running.\n";   // !!! change to loging and exit 
@@ -86,7 +85,6 @@ int LOCATION::enableGPS()
 
 int LOCATION::findSignal()
 {
-  cout<<"Finding"<<endl; //delete
   int count = 0;
   while (((dataPtr= gps_rec.read()) == NULL) ||
              (dataPtr->fix.mode < MODE_2D)) 
@@ -99,6 +97,7 @@ int LOCATION::findSignal()
       if(count > WAIT_TOLERANCE)
       {
         fprintf(locationFilePtr, "Exceded wait tolerance of %d retries. Exiting... /n", WAIT_TOLERANCE);
+        return(BAD);
       }
       sleep(SECONDS_TO_WAIT);
     }
@@ -107,7 +106,6 @@ int LOCATION::findSignal()
 
 int LOCATION::checkGPSData()
 {
-  cout<<"Checking"<<endl; //delete
   int comp;
   //get time and location 
   timestamp_t ts { dataPtr->fix.time };
@@ -142,160 +140,15 @@ int LOCATION::checkGPSData()
   return(GOOD);
 }
 
-string LOCATION::currentLoc()  //finish this!
+string LOCATION::currentLoc()
 {
   ostringstream CurrentLoc;
+  CurrentLoc.precision(6);  //making sure that the floating points are no more than 6 decimal places
+  CurrentLoc.setf(std::ios::fixed, std::ios::floatfield);
   CurrentLoc<<"Lat: "<<gpsData.latitude<<", Long: "<<gpsData.longitude<<", time: "<<gpsData.currentTime;
   return CurrentLoc.str();
 }
 
-
-////this is a duplicate of trackGPS, but adds spoofing
-//void spoofGPS()
-//{
-  //fprintf(locationFilePtr, "I am now spoofing\n");
-  //gpsmm gps_rec("localhost", DEFAULT_GPSD_PORT);   //finds GPS, see what # the default port is
-  
-  //if (gps_rec.stream(WATCH_ENABLE | WATCH_JSON) == NULL) // ENABLE turns off repording modes, JSON turns on JSON reporting data
-  //{
-    //std::cerr << "No GPSD running.\n";
-    //fprintf(locationFilePtr, "Can't get GPS to stream\n");
-  //}
-  
-  //struct gps_data_t gpsd_data;  
-  //struct gps_data_t *dataPtr = &gpsd_data;
-  //double comp;
-  
-  //for (;;)  // loop forever
-  //{
-    //#ifdef SPOOF
-      ////start of spoofing
-      //int spoofOption;
-      //float time, ept, lat, epy, lon, epx, alt, epv, track, epd;
-      //float speed, eps, climb, epc;
-      //cout<<"Spoof enabled"<<endl;
-      //cout<<" Press 1 to enter time,Lat,Long"<<endl;
-      //cout<<"Press 2 to enter all gpsd_data: ";
-      //cin>>spoofOption;
-      //if(spoofOption == 1)
-      //{  //hard coded float numbers are not needed for option 1, only there so gpsd works
-        //cout<<"Enter the time: "; cin>>time;
-        //cout<<"Enter the latitude: "; cin>>lat;
-        //cout<<"Enter the longitute: "; cin>>lon;
-        //dataPtr = &gpsd_data;
-        //cout << "Spoofing data" << endl;
-        //dataPtr->fix.mode = MODE_3D;
-        //dataPtr->fix.time = (timestamp_t) time;
-        //dataPtr->fix.ept = 0.0000000001;
-        //dataPtr->fix.latitude = lat;
-        //dataPtr->fix.epy = 0.0000000001;
-        //dataPtr->fix.longitude = lon;
-        //dataPtr->fix.epx = 0.0000000001;
-        //dataPtr->fix.altitude = 7777777.11;
-        //dataPtr->fix.epv = 0.0000000001;
-        //dataPtr->fix.track = 0.0;
-        //dataPtr->fix.epd = 0.0000000001;
-        //dataPtr->fix.speed = 1.0;
-        //dataPtr->fix.eps = 0.0000000001;
-        //dataPtr->fix.climb = 1.0;
-        //dataPtr->fix.epc = 0.0000000001;
-        //cout << "Data spoofed" << endl;
-      //}
-      //else if (spoofOption == 2)
-      //{
-        //cout<<"Enter the time: "; cin>>time;
-        //cout<<"Enter the ept: "; cin>>ept;
-        //cout<<"Enter the latitude: "; cin>>lat;
-        //cout<<"Enter the epy: "; cin>>epy;
-        //cout<<"Enter the longitute: "; cin>>lon;
-        //cout<<"Enter the epx: "; cin>>epx;
-        //cout<<"Enter the altitude: "; cin>>alt;
-        //cout<<"Enter the epv: "; cin>>epv;
-        //cout<<"Enter the track: "; cin>>track;
-        //cout<<"Enter the epd: "; cin>>epd;
-        //cout<<"Enter the speed: "; cin>>speed;
-        //cout<<"Enter the eps: "; cin>>eps;
-        //cout<<"Enter the climb: "; cin>>climb;
-        //cout<<"Enter the epc: "; cin>>epc;
-        //dataPtr = &gpsd_data;
-        //cout << "Spoofing data" << endl;
-        //dataPtr->fix.mode = MODE_3D;
-        //dataPtr->fix.time = (timestamp_t) time;
-        //dataPtr->fix.ept = ept;
-        //dataPtr->fix.latitude = lat;
-        //dataPtr->fix.epy = epy;
-        //dataPtr->fix.longitude = lon;
-        //dataPtr->fix.epx = epx;
-        //dataPtr->fix.altitude = alt;
-        //dataPtr->fix.epv = epv;
-        //dataPtr->fix.track = track;
-        //dataPtr->fix.epd = epd;
-        //dataPtr->fix.speed = speed;
-        //dataPtr->fix.eps = eps;
-        //dataPtr->fix.climb = climb;
-        //dataPtr->fix.epc = epc;
-        //cout << "Data spoofed" << endl;
-      //}
-      //else
-      //{
-        //cout<<"Please try again"<<endl;
-      //}
-      ////end of spoofing
-    //#else
-      ////start of regular tracking
-      //while (((dataPtr= gps_rec.read()) == NULL) ||
-               //(dataPtr->fix.mode < MODE_2D)) 
-      //{
-        ////log and wait 15 seconds until fix
-        //time(&rawtime);
-        //timeinfo = localtime(&rawtime);   
-        //fprintf(locationFilePtr, "Not getting signal at %s, trying again in %d seconds...\n", asctime(timeinfo), SECONDS_TO_WAIT);
-        //sleep(SECONDS_TO_WAIT);
-      //}
-  
-      //// log the gps binary data
-      //assert((fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr)) == true);
-      ////end of regular tracking
-    //#endif
-    
-    ////get time and location from GPS
-    //timestamp_t ts { dataPtr->fix.time };
-    //auto newLatitude  { dataPtr->fix.latitude };
-    //auto newLongitude { dataPtr->fix.longitude };
-      
-    //// convert GPSD's timestamp_t into time_t
-    //time_t seconds { (time_t)ts };
-    //auto   tm = *std::localtime(&seconds);
-
-    //std::ostringstream oss;
-    //oss << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
-    //auto time_str { oss.str() };
-
-    //comp = gps.gpsComp(newLatitude, newLongitude);
-    
-    ////compare new location to last to see if out of tolerence 
-    //if (comp >= TOLERANCE) 
-    //{     
-      //gps.saveGPSData((double)(newLatitude), (double)(newLongitude), time_str); //fix after comp works
-    //}
-     
-    
-  //} // end loop forever
-//}
-
-
-////defining the log function (needs work and not in use yet)
-//int log(void) // have as a seperate thing in the Main?
-//{
-  //FILE *logfile_ptr;
-  //assert ((logfile_ptr = fopen("/tmp/gpslog.bin", "w")) >= 0);
-  
-  //cout<<"I made it this far"<<endl;
-  //// log the gps binary data
-  ////  assert((fwrite(dataPtr, sizeof(struct gps_data_t), 1, logfile_ptr)) == true);
-  //assert((fclose(logfile_ptr)) == true);
-  //return 1;
-//}
 
 
 
