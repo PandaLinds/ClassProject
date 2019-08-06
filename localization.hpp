@@ -16,7 +16,7 @@
 
 #define GOOD 0
 #define BAD (-1)
-#define WAIT_TOLERANCE 100
+#define WAIT_TOLERANCE 200
 #define CHANGE_SAVED 2
 
 
