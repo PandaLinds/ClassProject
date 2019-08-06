@@ -41,7 +41,7 @@ void GPSthread(void)
     fprintf(fp2, "GPS not fount\n");
     return((void)BAD);
   }
-  for(int i = 0; i < 5; i++)
+  for(;;)
   {
     MonitorLocation.findSignal();
     if (MonitorLocation.checkGPSData() == CHANGE_SAVED)
