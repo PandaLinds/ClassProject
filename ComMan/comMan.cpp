@@ -204,6 +204,7 @@ void sigHandler(int sigNum)
   FD_ZERO(&master);
   close(server_sock);
   fclose(fp2);
+  map.printMap();
   exit(0);
 }
 
