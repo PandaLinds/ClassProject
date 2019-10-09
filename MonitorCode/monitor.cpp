@@ -36,14 +36,19 @@ void GPSthread(void)
   string lstrs = "";
   ostringstream messageCont;
   
+  // Enable GPS
   if (MonitorLocation.enableGPS() < 0)
   {
     fprintf(fp2, "GPS not fount\n");
     return((void)BAD);
   }
+	
+  // For the life of the monitor, monitor and update GPS position
   for(;;)
   {
     MonitorLocation.findSignal();
+	  
+    // check if GPS pos has changed, send update to Com Man
     if (MonitorLocation.checkGPSData() == CHANGE_SAVED)
     {
       //send data
@@ -58,7 +63,7 @@ void GPSthread(void)
   }
 }
 
-void motionthread(void)
+void motionthread(void) // in future, make into a seperate file and link
 {
   // Drawing variables for writing to the window
   stringstream drawnStringStream;
@@ -298,8 +303,8 @@ void motionthread(void)
 }
 
 
-
-void clientthread(void)
+//possibly change message sending in other functs to a queue and send here
+void clientthread(void) 
 {
   char c;
   FILE *fp;
@@ -313,8 +318,10 @@ void clientthread(void)
   //string hostName = "172.19.172.14"; //King
   string hostName ="192.168.0.4"; //house
   
-
+  // open the socket
   fp = fdopen(client_sock, "r");
+	
+  //send/recieve messages to Com Man
   for(;;)
   {
     send(client_sock, strs, strlen(strs),0);
@@ -359,9 +366,10 @@ void acousticthread(void)
   string astrs = "Acoustic is recording\n";
   ssize_t SendRC;
   
+  // Send the mic is recording to Com Man
   if ((SendRC=send(client_sock, astrs.c_str(), strlen(astrs.c_str()),0)) <= 0)
   {
-    fprintf(fp2, "GPS Message not sent\n");
+    fprintf(fp2, "Acoustic Message not sent\n");
   }
 
   // Fill history with a baseline so it doesn't take so long to level out
@@ -379,12 +387,14 @@ void acousticthread(void)
   snd_pcm_t* handle;
   snd_pcm_sframes_t frames;
   static int16_t buffer[bufsize_bytes];
-
+  
+  // open PCM device (mic)
   if(snd_pcm_open(&handle, device, SND_PCM_STREAM_CAPTURE, 0) != 0)
   {
     printf("Failed to open pcm device (mic not connected)... waiting for mic\n");
     //WRITELOG("Failed to open pcm device (mic not connected)... waiting for mic\n");
     fflush(0);
+	  
     while(snd_pcm_open(&handle, device, SND_PCM_STREAM_CAPTURE, 0) != 0)
     {
       if(_shutdown)
@@ -401,6 +411,7 @@ void acousticthread(void)
     fflush(0);
   }
 
+  //make sure PMC device gets resources needed
   snd_pcm_hw_params_t* params;
   assert(snd_pcm_hw_params_malloc(&params) == 0);
   assert(snd_pcm_hw_params_any(handle, params) == 0);
@@ -414,6 +425,7 @@ void acousticthread(void)
   assert(snd_pcm_prepare(handle) == 0);
   assert(snd_pcm_start(handle) == 0);
 
+  //record until shutdown
   while(!_shutdown)
   {
     frames = snd_pcm_readi(handle, buffer, bufsize_frames);
@@ -508,7 +520,7 @@ void updateMap ()
 
 
 
-int clientInit()
+int clientInit() //This funciton is called first so other functions can send data
 {
   char c;
   FILE *fp;
