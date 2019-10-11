@@ -498,12 +498,12 @@ int main()
   clientInit();
   
   thread GPS(GPSthread);
-  thread motion(motionthread);
+  //thread motion(motionthread);
   thread client(clientthread);
   thread acoustic(acousticthread);
   
   client.join();
-  motion.join();
+  //motion.join();  //not needed for a test
   GPS.join();
   acoustic.join();
   fclose(locationFilePtr);
