@@ -1,1 +1,12 @@
 
+New Client: 15
+Client 15 says: Acoustic is recording
+Client 15 says: Heartbeat
+New Client: 15
+Client 15 says: Acoustic is recording
+Client 15 says: Heartbeat
+Client 15 says: Location Changed: Lat: 34.615368, Long: -112.449878, time: 17-10-2019 18:28Client 15 says: :07
+Client 15 says: Heartbeat
+New Client: 16
+Client 16 says: Heartbeat
+Client 16 says: Acoustic is recording

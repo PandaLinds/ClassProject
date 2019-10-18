@@ -12,6 +12,7 @@
 #include <time.h>
 
 #define MOTION_WAIT 3
+#define CLIENT_WAIT 12
 
 
 
@@ -39,15 +40,13 @@ void GPSthread(void)
   // Enable GPS
   if (MonitorLocation.enableGPS() < 0)
   {
-    fprintf(fp2, "GPS not fount\n");
+    fprintf(fp2, "GPS not found\n");
     return((void)BAD);
   }
-	
   // For the life of the monitor, monitor and update GPS position
   for(;;)
   {
     MonitorLocation.findSignal();
-	  
     // check if GPS pos has changed, send update to Com Man
     if (MonitorLocation.checkGPSData() == CHANGE_SAVED)
     {
@@ -314,9 +313,8 @@ void clientthread(void)
   struct linger opt;
   int sockarg;
   ssize_t n_read;
+  ssize_t SendRC;
   char incomingBuff[INCOMING_MESSAGE_MAX];
-  //string hostName = "172.19.172.14"; //King
-  string hostName ="192.168.0.4"; //house
   
   // open the socket
   fp = fdopen(client_sock, "r");
@@ -324,7 +322,11 @@ void clientthread(void)
   //send/recieve messages to Com Man
   for(;;)
   {
-    send(client_sock, strs, strlen(strs),0);
+    if ((SendRC=(send(client_sock, strs, strlen(strs),0)))<=0);
+    {
+      fprintf(fp2, "Heartbeat Message not sent\n");
+    }
+    
     memset(incomingBuff,0,sizeof(incomingBuff));
 
     //write message to a file. Make a second file for binary file?
@@ -344,7 +346,6 @@ void clientthread(void)
     sleep(SECONDS_TO_WAIT);
   }
   close(client_sock);
-  
   return((void)GOOD);
 }
 
@@ -381,7 +382,7 @@ void acousticthread(void)
   time(&rawTime);
   info = localtime(&rawTime);
 
-  sprintf(filename, "mnt/data/pcm/recording.%d%d%d%d%d%d.pcm",info->tm_year+1900, info->tm_mon+1, info->tm_mday, info->tm_hour, info->tm_min, info->tm_sec);
+  sprintf(filename, "mnt/data/pcm/recording.%d,%d,%d,%d:%d:%d.pcm",info->tm_year+1900, info->tm_mon+1, info->tm_mday, info->tm_hour, info->tm_min, info->tm_sec);
   _audiofile = fopen(filename, "wb");
 
   snd_pcm_t* handle;
@@ -479,7 +480,7 @@ void acousticthread(void)
 
     //WRITELOG("Acoustic RMS:%7.2f Rolling Average:%7.2f overavg_count:%3d\n", rms, rollingavg, overavg_count);
   }
-
+  
   assert(snd_pcm_close(handle) == 0);
 
   return;
@@ -491,23 +492,27 @@ int main()
 {
 	double testLat, testLong;
   string testID;
+  int returnCode;
   //pthread_t GPS, motion;
   //registering signal SIGINT and signal handler 
   signal(SIGINT, signalHandler);
   
   clientInit();
-  
-  thread GPS(GPSthread);
+    
+  thread client(GPSthread);
   //thread motion(motionthread);
-  thread client(clientthread);
+  thread GPS(clientthread);
   thread acoustic(acousticthread);
   
+  
   client.join();
-  //motion.join();  //not needed for a test
   GPS.join();
   acoustic.join();
+  //motion.join();  //not needed for a test
+  
   fclose(locationFilePtr);
   //fclose(motionFilePtr);
+  
   fclose(fp2);
   
 }
@@ -530,9 +535,11 @@ int clientInit() //This funciton is called first so other functions can send dat
   struct linger opt;
   int sockarg;
   ssize_t n_read;
+  int counter=0;
   char incomingBuff[INCOMING_MESSAGE_MAX];
   //string hostName = "172.19.172.14";  //king
-  string hostName ="192.168.0.4"; //house
+  string hostName = "172.19.161.65"; //games lab
+  //string hostName ="192.168.0.4"; //house
   
   //signal(SIGINT, sigHandler); //Need?
   //signal(SIGPIPE, broken_pipe_handler); //Need? 
@@ -573,10 +580,10 @@ int clientInit() //This funciton is called first so other functions can send dat
   setsockopt(client_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&sockarg, sizeof(int));
 
   while (connect(client_sock, (struct sockaddr*)&client_sockaddr,
-     sizeof(client_sockaddr)) < 0) 
+     sizeof(client_sockaddr)) < 0) //waits 5 minutes
   {
     printf("Unable to connect to server... retrying in 5 seconds...\n");
-    sleep(5);
+    sleep(5); //5 seconds
   }
 
   //signal(SIGPIPE, broken_pipe_handler);
