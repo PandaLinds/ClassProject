@@ -1,0 +1,5 @@
+
+File started recording at about 2019101717823
+Failed to open pcm device (mic not connected)... waiting for mic
+File started recording at about 2019 10 17 17:9:37
+Failed to open pcm device (mic not connected)... waiting for mic
