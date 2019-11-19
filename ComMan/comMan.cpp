@@ -11,6 +11,8 @@ using namespace std;
 
 MAP map;
 
+//select base from https://www.geeksforgeeks.org/tcp-and-udp-server-using-select/
+
 int main(int argc, char **argv)
 {
    char hostname[64];
