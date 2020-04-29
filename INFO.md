@@ -5,7 +5,7 @@ This project is a Wireless Sensor Network which tracks the location of each node
 Additionally, it enables the use of an accoustic and motion detection. Both sensors passively collect data which must be reviewed after tests. 
 
 ## Layout of the Project
-The main file holds all of the code needed for MonitorCode and ComMan. The Makefile in the main file will compile the files needed for MonitorCode and ComMan. ComMan's Makefile will compile its code and pull the files it needs from the main file. MonitorCode's Makefile will similarly compile its code and pull the files it needs from the main file. OctTest is the latest test performed, this code can be deleted.
+The main file (IcarusWSN) holds all of the code needed for MonitorCode and ComMan. The Makefile in the main file will compile the files needed for MonitorCode and ComMan. ComMan's Makefile will compile its code and pull the files it needs from the main file. MonitorCode's Makefile will similarly compile its code and pull the files it needs from the main file. OctTest is the latest test performed, this code can be deleted.
 
 ## Outstanding issues
 - Commenting is not to coding standards.

@@ -68,12 +68,12 @@ Note: This only works if it is run on the same machine as the server. Otherwise,
 ## How to run Live Tests
 
 ### Builds Needed
-1. Run the Makefile in the ~/ClassProject
+1. Run the Makefile in the ~/IcarusWSN
 2. Device Type:
-- Communication Manager: Run the Makefile in ClassProject/ComMan
-- Monitor: Run the Makefile in ClassProject/Monitor
+- Communication Manager: Run the Makefile in IcarusWSN/ComMan
+- Monitor: Run the Makefile in IcarusWSN/Monitor
 
 ### Running 
 Device Type
-- Communication Manager: run command "./comMan" in the file ClassProject/ComMan
-- Monitor: run command "./monitor" in the file ClassProject/MonitorCode
+- Communication Manager: run command "./comMan" in the file IcarusWSN/ComMan
+- Monitor: run command "./monitor" in the file IcarusWSN/MonitorCode
