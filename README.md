@@ -3,27 +3,29 @@ self-localization with mapping of devices in a system, as well as message sendin
 
 This system was built and tested on a Raspberry Pi 3b+, using the operating system Raspbian GNU/Linux 9
 
-For enabling localizaiton with GPS:
+For more about what this project is about and outstanding issues, please see the INFO.md file
 
-#Initial setup
+## For enabling localizaiton with GPS:
+
+### Initial setup
 1. Edit /boot/config.txt and add "enable_uart=1" at the end
 2. Edit /boot/cmdline.txt and remove "console=serial0,115200"
 3. systemctl enable ssh
 4. sudo apt-get install gpsd libgps-dev libasound2 libasound2-dev ffmpeg libbluetooth-dev
 5. Edit /etc/rc.local and add “chmod a+w /sys/class/leds/led1/brightness” before the last line
 6. Edit /etc/default/gpsd and add "/dev/serial0" to DEVICES
-7. cd ~/Desktop ; git clone https://github.com/PandaLinds/ClassProject/
+7. Clone this repository onto the desired device
 
-#Build
+### Build
 1. *make* compiles the localization, map, server, and client.
 2. *make -f MakefileTest* compiles localization with its unit test.
 3. *make -f MakefileMapTest* compiles map with its unit test.
 
-#run
+### run
 1. type "./localization" to run the localization process.
 2. type Ctrl+C to end the process.
 
-#Troubleshooting
+### Troubleshooting
 *Check if GPS daemon is holding the tcp port:*
 sudo netstat -anp|grep 2947
 
@@ -41,23 +43,37 @@ aplay -L
 
 
 
-Testing:
+## Testing:
 In order for this to work, localization and map must compile on the machine.
 
-#Build
+### Build
 1. *make -f MakefileTest* compiles localization with its unit test.
 2. *make -f MakefileMapTest* compiles map with its unit test.
 3. *make -f Makefile2* to compile map and localization into a test driver.
 
-#run
+### run
 1. type *./maptest* and enter promped information to run tests.
 2. type *./locationTest* to run the localization module with spoofed data.
 3. type *./module* to run the localization and mapping concurrently 
 
-#Client startup
+### Client startup
 1. type "hostname" in the terminal and then use that as the input for ./inet_client2 [hostname] 
 Note: This only works if it is run on the same machine as the server. Otherwise, use the hostname of the server's machine.
 
-#Server startup
+### Server startup
 1. To use the default port (54321), start the server with just ./inet_server
 2. To use a custom port, start with ./inet_server [port]
+
+
+## How to run Live Tests
+
+### Builds Needed
+1. Run the Makefile in the ~/ClassProject
+2. Device Type:
+- Communication Manager: Run the Makefile in ClassProject/ComMan
+- Monitor: Run the Makefile in ClassProject/Monitor
+
+### Running 
+Device Type
+- Communication Manager: run command "./comMan" in the file ClassProject/ComMan
+- Monitor: run command "./monitor" in the file ClassProject/MonitorCode
